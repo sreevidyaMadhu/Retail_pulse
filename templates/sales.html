@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Sales - RetailPulse</title>
+</head>
+
+<body>
+
+<h1>RetailPulse</h1>
+
+<h2>Sales</h2>
+
+<a href="{{ url_for('add_sale') }}">
+    Record New Sale
+</a>
+
+<br><br>
+
+<table border="1" cellpadding="10">
+
+<tr>
+    <th>Product</th>
+    <th>Batch</th>
+    <th>Quantity</th>
+    <th>Sale Price</th>
+    <th>Date</th>
+</tr>
+
+{% for sale in sales %}
+
+<tr>
+
+    <td>{{ sale.product.name }}</td>
+
+    <td>{{ sale.batch.batch_number }}</td>
+
+    <td>{{ sale.quantity }}</td>
+
+    <td>{{ sale.sale_price }}</td>
+
+    <td>{{ sale.sale_date }}</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+<br>
+
+<a href="{{ url_for('manager_dashboard') }}">
+    Back to Dashboard
+</a>
+
+</body>
+
+</html>

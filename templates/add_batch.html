@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Add New Batch - RetailPulse</title>
+</head>
+
+<body>
+
+    <h1>RetailPulse</h1>
+
+    <h2>Add New Stock</h2>
+
+    <h3>Product: {{ product.name }}</h3>
+
+    <form method="POST">
+
+        <label>Batch Number:</label>
+        <br>
+
+        <input
+            type="text"
+            name="batch_number"
+            required
+        >
+
+        <br><br>
+
+
+        <label>Quantity:</label>
+        <br>
+
+        <input
+            type="number"
+            name="quantity"
+            min="1"
+            required
+        >
+
+        <br><br>
+
+
+        <label>Manufacture Date:</label>
+        <br>
+
+        <input
+            type="date"
+            name="manufacture_date"
+        >
+
+        <br><br>
+
+
+        <label>Received Date:</label>
+        <br>
+
+        <input
+            type="date"
+            name="received_date"
+            required
+        >
+
+        <br><br>
+
+
+        <label>Expiry Date:</label>
+        <br>
+
+        <input
+            type="date"
+            name="expiry_date"
+            required
+        >
+
+        <br><br>
+
+
+        <button type="submit">
+            Add Stock
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="{{ url_for(
+        'view_batches',
+        product_id=product.id
+    ) }}">
+        Back to Batches
+    </a>
+
+</body>
+
+</html>

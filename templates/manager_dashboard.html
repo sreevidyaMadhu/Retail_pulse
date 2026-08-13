@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manager Dashboard - RetailPulse</title>
+</head>
+
+<body>
+
+    <h1>RetailPulse</h1>
+
+    <h2>Manager Dashboard</h2>
+
+    <p>Welcome, {{ current_user.username }}!</p>
+
+    <hr>
+
+    <h3>Management</h3>
+
+    <a href="{{ url_for('products') }}">
+    Products
+    </a>
+    <br><br>
+
+    <a href="{{ url_for('inventory') }}">
+    Inventory
+    </a>
+    <br><br>
+
+    <a href="{{ url_for('sales') }}">
+    Sales
+    </a>
+    <br><br>
+
+    <a href="#">Weather & Demand</a>
+    <br><br>
+
+    <a href="#">Analytics</a>
+
+    <hr>
+
+    <a href="{{ url_for('logout') }}">Logout</a>
+
+</body>
+</html>
