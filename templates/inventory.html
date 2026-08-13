@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inventory - RetailPulse</title>
+</head>
+
+<body>
+
+    <h1>RetailPulse</h1>
+
+    <h2>Inventory</h2>
+
+    <table border="1" cellpadding="10">
+
+        <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th>Reorder Level</th>
+            <th>Status</th>
+            <th>Batches</th>
+        </tr>
+
+        {% for item in inventory_data %}
+
+        <tr>
+
+            <td>{{ item.product.name }}</td>
+
+            <td>{{ item.product.category }}</td>
+
+            <td>{{ item.stock.quantity }}</td>
+
+            <td>{{ item.stock.reorder_level }}</td>
+
+            <td>
+                {% if item.stock.quantity <= item.stock.reorder_level %}
+                    Reorder
+                {% else %}
+                    In Stock
+                {% endif %}
+            </td>
+
+            <td>
+                <a href="{{ url_for(
+                    'view_batches',
+                    product_id=item.product.id
+                ) }}">
+                    View Batches
+                </a>
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    <br>
+
+    <a href="{{ url_for('manager_dashboard') }}">
+        Back to Dashboard
+    </a>
+
+</body>
+</html>

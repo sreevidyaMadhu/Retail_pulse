@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Record Sale - RetailPulse</title>
+</head>
+
+<body>
+
+<h1>RetailPulse</h1>
+
+<h2>Record New Sale</h2>
+
+<form method="POST">
+
+    <label>Product:</label>
+    <br>
+
+    <select name="product_id" required>
+
+        <option value="">-- Select Product --</option>
+
+        {% for product in products %}
+
+        <option value="{{ product.id }}">
+            {{ product.name }}
+        </option>
+
+        {% endfor %}
+
+    </select>
+
+    <br><br>
+
+    <label>Quantity Sold:</label>
+    <br>
+
+    <input
+        type="number"
+        name="quantity"
+        min="1"
+        required
+    >
+
+    <br><br>
+
+    <button type="submit">
+        Record Sale
+    </button>
+
+</form>
+
+<br>
+
+<a href="{{ url_for('sales') }}">
+    Back to Sales
+</a>
+
+</body>
+
+</html>

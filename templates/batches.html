@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Batches - RetailPulse</title>
+</head>
+
+<body>
+
+<h1>RetailPulse</h1>
+
+<h2>{{ product.name }} - Batches</h2>
+
+<a href="{{ url_for('add_batch', product_id=product.id) }}">
+    Add New Stock / Batch
+</a>
+
+<p>Total Stock: {{ inventory.quantity }}</p>
+
+<table border="1" cellpadding="10">
+<tr>
+    <th>Batch Number</th>
+    <th>Quantity</th>
+    <th>Manufacture Date</th>
+    <th>Received Date</th>
+    <th>Expiry Date</th>
+    <th>Status</th>
+</tr>
+{% for batch in batches %}
+
+<tr>
+
+    <td>{{ batch.batch_number }}</td>
+
+    <td>{{ batch.quantity }}</td>
+
+    <td>{{ batch.manufacture_date }}</td>
+
+    <td>{{ batch.received_date }}</td>
+
+    <td>{{ batch.expiry_date }}</td>
+
+    <td>
+
+        {% if batch.expiry_date < today %}
+
+            Expired
+
+        {% elif (batch.expiry_date - today).days <= 3 %}
+
+            Near Expiry
+
+        {% else %}
+
+            Normal
+
+        {% endif %}
+
+    </td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+<br>
+
+<a href="{{ url_for('inventory') }}">
+    Back to Inventory
+</a>
+
+</body>
+</html>
