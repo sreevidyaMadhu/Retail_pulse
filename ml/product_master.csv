@@ -1,0 +1,81 @@
+product_id,product_name,category,weather_dependency,shop_id,city
+P001,Coca Cola,Beverages,High,S001,Thiruvananthapuram
+P002,Pepsi,Beverages,High,S001,Thiruvananthapuram
+P003,Sprite,Beverages,High,S001,Thiruvananthapuram
+P004,Fruit Juice,Beverages,High,S001,Thiruvananthapuram
+P005,Packaged Drinking Water,Beverages,High,S001,Thiruvananthapuram
+P006,Energy Drink,Beverages,High,S001,Thiruvananthapuram
+P007,Lemon Juice,Beverages,High,S001,Thiruvananthapuram
+P008,Flavoured Milk,Beverages,Medium,S001,Thiruvananthapuram
+P009,Vanilla Ice Cream,Ice Cream & Frozen,Very High,S001,Thiruvananthapuram
+P010,Chocolate Ice Cream,Ice Cream & Frozen,Very High,S001,Thiruvananthapuram
+P011,Strawberry Ice Cream,Ice Cream & Frozen,Very High,S001,Thiruvananthapuram
+P012,Kulfi,Ice Cream & Frozen,Very High,S001,Thiruvananthapuram
+P013,Ice Cream Cone,Ice Cream & Frozen,Very High,S001,Thiruvananthapuram
+P014,Frozen Dessert,Ice Cream & Frozen,High,S001,Thiruvananthapuram
+P015,Watermelon,Fruits,Very High,S001,Thiruvananthapuram
+P016,Mango,Fruits,High,S001,Thiruvananthapuram
+P017,Orange,Fruits,Medium,S001,Thiruvananthapuram
+P018,Grapes,Fruits,Medium,S001,Thiruvananthapuram
+P019,Pineapple,Fruits,Medium,S001,Thiruvananthapuram
+P020,Banana,Fruits,Low,S001,Thiruvananthapuram
+P021,Papaya,Fruits,Low,S001,Thiruvananthapuram
+P022,Apple,Fruits,Low,S001,Thiruvananthapuram
+P023,Tomato,Vegetables,Medium,S001,Thiruvananthapuram
+P024,Cucumber,Vegetables,High,S001,Thiruvananthapuram
+P025,Carrot,Vegetables,Low,S001,Thiruvananthapuram
+P026,Potato,Vegetables,Very Low,S001,Thiruvananthapuram
+P027,Onion,Vegetables,Very Low,S001,Thiruvananthapuram
+P028,Green Chilli,Vegetables,Low,S001,Thiruvananthapuram
+P029,Spinach,Vegetables,Medium,S001,Thiruvananthapuram
+P030,Capsicum,Vegetables,Low,S001,Thiruvananthapuram
+P031,Milk,Dairy,Low,S001,Thiruvananthapuram
+P032,Curd,Dairy,Medium,S001,Thiruvananthapuram
+P033,Butter,Dairy,Low,S001,Thiruvananthapuram
+P034,Cheese,Dairy,Low,S001,Thiruvananthapuram
+P035,Paneer,Dairy,Low,S001,Thiruvananthapuram
+P036,Buttermilk,Dairy,High,S001,Thiruvananthapuram
+P037,Flavoured Yogurt,Dairy,Medium,S001,Thiruvananthapuram
+P038,Fresh Cream,Dairy,Low,S001,Thiruvananthapuram
+P039,Bread,Bakery,Low,S001,Thiruvananthapuram
+P040,Bun,Bakery,Low,S001,Thiruvananthapuram
+P041,Burger Bun,Bakery,Low,S001,Thiruvananthapuram
+P042,Cake,Bakery,Medium,S001,Thiruvananthapuram
+P043,Rusk,Bakery,Low,S001,Thiruvananthapuram
+P044,Biscuits,Bakery,Low,S001,Thiruvananthapuram
+P045,Croissant,Bakery,Low,S001,Thiruvananthapuram
+P046,Bread Rolls,Bakery,Low,S001,Thiruvananthapuram
+P047,Potato Chips,Snacks & Chocolates,Medium,S001,Thiruvananthapuram
+P048,Mixture,Snacks & Chocolates,Low,S001,Thiruvananthapuram
+P049,Namkeen,Snacks & Chocolates,Low,S001,Thiruvananthapuram
+P050,Popcorn,Snacks & Chocolates,Low,S001,Thiruvananthapuram
+P051,Chocolate,Snacks & Chocolates,Medium,S001,Thiruvananthapuram
+P052,Candy,Snacks & Chocolates,Low,S001,Thiruvananthapuram
+P053,Nuts,Snacks & Chocolates,Low,S001,Thiruvananthapuram
+P054,Instant Snack Mix,Snacks & Chocolates,Low,S001,Thiruvananthapuram
+P055,Instant Noodles,Ready-to-Eat & Convenience,Medium,S001,Thiruvananthapuram
+P056,Soup Mix,Ready-to-Eat & Convenience,Medium,S001,Thiruvananthapuram
+P057,Pasta,Ready-to-Eat & Convenience,Low,S001,Thiruvananthapuram
+P058,Ready-to-Eat Meals,Ready-to-Eat & Convenience,Medium,S001,Thiruvananthapuram
+P059,Canned Food,Ready-to-Eat & Convenience,Low,S001,Thiruvananthapuram
+P060,Breakfast Cereal,Ready-to-Eat & Convenience,Low,S001,Thiruvananthapuram
+P061,Umbrella,Weather-related Household,Very High,S001,Thiruvananthapuram
+P062,Raincoat,Weather-related Household,Very High,S001,Thiruvananthapuram
+P063,Waterproof Shoe Cover,Weather-related Household,High,S001,Thiruvananthapuram
+P064,Candles,Weather-related Household,Medium,S001,Thiruvananthapuram
+P065,Batteries,Weather-related Household,Medium,S001,Thiruvananthapuram
+P066,Mosquito Repellent,Weather-related Household,High,S001,Thiruvananthapuram
+P067,Soap,Personal & Household Care,Low,S001,Thiruvananthapuram
+P068,Shampoo,Personal & Household Care,Medium,S001,Thiruvananthapuram
+P069,Conditioner,Personal & Household Care,Medium,S001,Thiruvananthapuram
+P070,Toothpaste,Personal & Household Care,Very Low,S001,Thiruvananthapuram
+P071,Detergent,Personal & Household Care,Low,S001,Thiruvananthapuram
+P072,Dishwashing Liquid,Personal & Household Care,Low,S001,Thiruvananthapuram
+P073,Floor Cleaner,Personal & Household Care,Low,S001,Thiruvananthapuram
+P074,Rice,Grocery Staples,Very Low,S001,Thiruvananthapuram
+P075,Wheat Flour,Grocery Staples,Very Low,S001,Thiruvananthapuram
+P076,Sugar,Grocery Staples,Very Low,S001,Thiruvananthapuram
+P077,Salt,Grocery Staples,Very Low,S001,Thiruvananthapuram
+P078,Cooking Oil,Grocery Staples,Very Low,S001,Thiruvananthapuram
+P079,Atta,Grocery Staples,Very Low,S001,Thiruvananthapuram
+P080,Spices,Grocery Staples,Very Low,S001,Thiruvananthapuram
