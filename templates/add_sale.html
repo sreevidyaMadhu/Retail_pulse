@@ -1,61 +1,211 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
 
-<head>
-    <title>Record Sale - RetailPulse</title>
-</head>
+{% block title %}
+Record Sale - RetailPulse
+{% endblock %}
 
-<body>
+{% block content %}
 
-<h1>RetailPulse</h1>
+<!-- =========================
+     PAGE HEADER
+========================= -->
 
-<h2>Record New Sale</h2>
+<div class="mb-4">
 
-<form method="POST">
-
-    <label>Product:</label>
-    <br>
-
-    <select name="product_id" required>
-
-        <option value="">-- Select Product --</option>
-
-        {% for product in products %}
-
-        <option value="{{ product.id }}">
-            {{ product.name }}
-        </option>
-
-        {% endfor %}
-
-    </select>
-
-    <br><br>
-
-    <label>Quantity Sold:</label>
-    <br>
-
-    <input
-        type="number"
-        name="quantity"
-        min="1"
-        required
-    >
-
-    <br><br>
-
-    <button type="submit">
+    <h1 class="page-title">
         Record Sale
-    </button>
+    </h1>
 
-</form>
+    <p class="page-subtitle">
+        Record a new product sale and update inventory automatically.
+    </p>
 
-<br>
+</div>
 
-<a href="{{ url_for('sales') }}">
-    Back to Sales
-</a>
 
-</body>
+<!-- =========================
+     SALE FORM
+========================= -->
 
-</html>
+<div class="row justify-content-center">
+
+    <div class="col-xl-8 col-lg-9">
+
+        <div class="dashboard-card">
+
+
+            <!-- CARD HEADER -->
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+
+                <div class="stat-icon mb-0">
+
+                    <i class="bi bi-cart-plus"></i>
+
+                </div>
+
+                <div>
+
+                    <h5 class="mb-1">
+                        New Sale
+                    </h5>
+
+                    <p class="text-muted small mb-0">
+                        Enter the details of the product sold.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form method="POST">
+
+
+                <!-- PRODUCT -->
+
+                <div class="mb-4">
+
+                    <label
+                        for="product_id"
+                        class="form-label fw-semibold"
+                    >
+
+                        Product
+
+                    </label>
+
+
+                    <select
+                        name="product_id"
+                        id="product_id"
+                        class="form-select"
+                        required
+                    >
+
+                        <option value="">
+                            -- Select Product --
+                        </option>
+
+
+                        {% for product in products %}
+
+                        <option value="{{ product.id }}">
+
+                            {{ product.name }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+
+                    <div class="form-text">
+
+                        Select the product that was sold.
+
+                    </div>
+
+                </div>
+
+
+                <!-- QUANTITY -->
+
+                <div class="mb-4">
+
+                    <label
+                        for="quantity"
+                        class="form-label fw-semibold"
+                    >
+
+                        Quantity Sold
+
+                    </label>
+
+
+                    <input
+                        type="number"
+                        name="quantity"
+                        id="quantity"
+                        class="form-control"
+                        min="1"
+                        required
+                    >
+
+
+                    <div class="form-text">
+
+                        Enter the number of units sold.
+
+                    </div>
+
+                </div>
+
+
+                <!-- INFORMATION -->
+
+                <div class="p-3 rounded bg-light mb-4">
+
+                    <div class="d-flex gap-3">
+
+                        <i class="bi bi-info-circle text-success fs-5"></i>
+
+                        <div>
+
+                            <strong>
+                                Automatic inventory update
+                            </strong>
+
+                            <p class="text-muted small mb-0 mt-1">
+
+                                RetailPulse will automatically deduct
+                                the sold quantity from inventory using
+                                the earliest-expiring available batch.
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- BUTTONS -->
+
+                <div class="d-flex justify-content-end gap-2">
+
+                    <a
+                        href="{{ url_for('sales') }}"
+                        class="btn btn-light"
+                    >
+
+                        Cancel
+
+                    </a>
+
+
+                    <button
+                        type="submit"
+                        class="btn-retail"
+                    >
+
+                        <i class="bi bi-check-lg me-2"></i>
+
+                        Record Sale
+
+                    </button>
+
+                </div>
+
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -56,6 +56,9 @@ df["month"] = df[
 df["day"] = df[
     "date"
 ].dt.day
+df["is_weekend"] = (
+    df["day_of_week"] >= 5
+).astype(int)
 
 
 # ------------------------------------------------------------

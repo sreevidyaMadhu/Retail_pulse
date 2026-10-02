@@ -1,58 +1,302 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
 
-<head>
-    <title>Sales - RetailPulse</title>
-</head>
+{% block title %}
+Sales - RetailPulse
+{% endblock %}
 
-<body>
+{% block content %}
 
-<h1>RetailPulse</h1>
+<!-- PAGE HEADER -->
 
-<h2>Sales</h2>
+<div class="d-flex justify-content-between align-items-start mb-4">
 
-<a href="{{ url_for('add_sale') }}">
-    Record New Sale
-</a>
+    <div>
 
-<br><br>
+        <h1 class="page-title">
+            Sales
+        </h1>
 
-<table border="1" cellpadding="10">
+        <p class="page-subtitle">
+            Record and monitor sales transactions for your shop.
+        </p>
 
-<tr>
-    <th>Product</th>
-    <th>Batch</th>
-    <th>Quantity</th>
-    <th>Sale Price</th>
-    <th>Date</th>
-</tr>
+    </div>
 
-{% for sale in sales %}
+    <a href="{{ url_for('add_sale') }}"
+       class="btn-retail">
 
-<tr>
+        <i class="bi bi-cart-plus me-2"></i>
 
-    <td>{{ sale.product.name }}</td>
+        Record Sale
 
-    <td>{{ sale.batch.batch_number }}</td>
+    </a>
 
-    <td>{{ sale.quantity }}</td>
+</div>
 
-    <td>{{ sale.sale_price }}</td>
 
-    <td>{{ sale.sale_date }}</td>
+<!-- SALES SUMMARY -->
 
-</tr>
+<div class="row g-4 mb-4">
 
-{% endfor %}
+    <!-- TOTAL TRANSACTIONS -->
 
-</table>
+    <div class="col-xl-4 col-md-6">
 
-<br>
+        <div class="stat-card">
 
-<a href="{{ url_for('manager_dashboard') }}">
-    Back to Dashboard
-</a>
+            <div class="stat-icon">
+                <i class="bi bi-receipt"></i>
+            </div>
 
-</body>
+            <div class="stat-label">
+                Total Transactions
+            </div>
 
-</html>
+            <div class="stat-value">
+                {{ sales|length }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ITEMS SOLD -->
+
+    <div class="col-xl-4 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-box-arrow-up"></i>
+            </div>
+
+            <div class="stat-label">
+                Items Sold
+            </div>
+
+            <div class="stat-value">
+                {{ sales|sum(attribute='quantity') }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- SALES VALUE -->
+
+    <div class="col-xl-4 col-md-12">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-currency-rupee"></i>
+            </div>
+
+            <div class="stat-label">
+                Sales Value
+            </div>
+
+            <div class="stat-value">
+                ₹{{ "%.2f"|format(total_sales_value) }}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SALES TABLE -->
+
+<div class="dashboard-card">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h5 class="mb-1">
+                Sales History
+            </h5>
+
+            <p class="text-muted small mb-0">
+                Recent sales transactions
+            </p>
+
+        </div>
+
+        <span class="badge bg-light text-dark">
+
+            {{ sales|length }} Transactions
+
+        </span>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Product</th>
+                    <th>Batch</th>
+                    <th>Quantity</th>
+                    <th>Sale Price</th>
+                    <th>Total</th>
+                    <th>Date</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for sale in sales %}
+
+                <tr>
+
+                    <!-- PRODUCT -->
+
+                    <td>
+
+                        <div class="d-flex align-items-center gap-3">
+
+                            <div class="product-icon">
+
+                                <i class="bi bi-box-seam"></i>
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    {{ sale.product.name }}
+                                </strong>
+
+                                <div class="text-muted small">
+
+                                    {{ sale.product.category }}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- BATCH -->
+
+                    <td>
+
+                        {% if sale.batch %}
+
+                            <span class="badge bg-light text-dark">
+
+                                {{ sale.batch.batch_number }}
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="text-muted">
+                                —
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- QUANTITY -->
+
+                    <td>
+
+                        <strong>
+                            {{ sale.quantity }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- SALE PRICE -->
+
+                    <td>
+
+                        ₹{{ "%.2f"|format(sale.sale_price) }}
+
+                    </td>
+
+
+                    <!-- TOTAL -->
+
+                    <td>
+
+                        <strong>
+
+                            ₹{{ "%.2f"|format(
+                                sale.quantity * sale.sale_price
+                            ) }}
+
+                        </strong>
+
+                    </td>
+
+
+                    <!-- DATE -->
+
+                    <td>
+
+                        <span class="text-muted">
+
+                            {{ sale.sale_date }}
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+            {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        class="text-center text-muted py-5"
+                    >
+
+                        <i class="bi bi-receipt fs-1 d-block mb-3"></i>
+
+                        <strong class="d-block mb-1">
+                            No sales recorded
+                        </strong>
+
+                        <small>
+                            Start by recording your first sale.
+                        </small>
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

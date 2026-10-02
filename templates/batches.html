@@ -1,73 +1,398 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Batches - RetailPulse</title>
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block title %}
+Batches - {{ product.name }} - RetailPulse
+{% endblock %}
 
-<h1>RetailPulse</h1>
+{% block content %}
 
-<h2>{{ product.name }} - Batches</h2>
+<!-- =========================
+     PAGE HEADER
+========================= -->
 
-<a href="{{ url_for('add_batch', product_id=product.id) }}">
-    Add New Stock / Batch
-</a>
+<div class="d-flex justify-content-between align-items-start mb-4">
 
-<p>Total Stock: {{ inventory.quantity }}</p>
+    <div>
 
-<table border="1" cellpadding="10">
-<tr>
-    <th>Batch Number</th>
-    <th>Quantity</th>
-    <th>Manufacture Date</th>
-    <th>Received Date</th>
-    <th>Expiry Date</th>
-    <th>Status</th>
-</tr>
-{% for batch in batches %}
+        <h1 class="page-title">
+            Product Batches
+        </h1>
 
-<tr>
+        <p class="page-subtitle">
+            Manage stock batches for
+            <strong>{{ product.name }}</strong>.
+        </p>
 
-    <td>{{ batch.batch_number }}</td>
+    </div>
 
-    <td>{{ batch.quantity }}</td>
+    <a
+        href="{{ url_for(
+            'add_batch',
+            product_id=product.id
+        ) }}"
+        class="btn-retail"
+    >
+        <i class="bi bi-plus-lg me-2"></i>
+        Add Stock
+    </a>
 
-    <td>{{ batch.manufacture_date }}</td>
+</div>
 
-    <td>{{ batch.received_date }}</td>
 
-    <td>{{ batch.expiry_date }}</td>
+<!-- =========================
+     PRODUCT INFORMATION
+========================= -->
 
-    <td>
+<div class="dashboard-card mb-4">
 
-        {% if batch.expiry_date < today %}
+    <div class="d-flex align-items-center gap-3">
 
-            Expired
+        <div class="product-icon">
+            <i class="bi bi-box-seam"></i>
+        </div>
 
-        {% elif (batch.expiry_date - today).days <= 3 %}
+        <div>
 
-            Near Expiry
+            <h5 class="mb-1">
+                {{ product.name }}
+            </h5>
 
-        {% else %}
+            <p class="text-muted small mb-0">
+                {{ product.category }}
+                &nbsp; • &nbsp;
+                Product #{{ product.id }}
+            </p>
 
-            Normal
+        </div>
 
-        {% endif %}
+    </div>
 
-    </td>
+</div>
 
-</tr>
 
-{% endfor %}
+<!-- =========================
+     STOCK SUMMARY
+========================= -->
 
-</table>
+<div class="row g-4 mb-4">
 
-<br>
+    <!-- Current Stock -->
 
-<a href="{{ url_for('inventory') }}">
-    Back to Inventory
-</a>
+    <div class="col-md-4">
 
-</body>
-</html>
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-stack"></i>
+            </div>
+
+            <div class="stat-label">
+                Current Stock
+            </div>
+
+            <div class="stat-value">
+                {{ inventory.quantity }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Total Batches -->
+
+    <div class="col-md-4">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-layers"></i>
+            </div>
+
+            <div class="stat-label">
+                Total Batches
+            </div>
+
+            <div class="stat-value">
+                {{ batches|length }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Usable Stock -->
+
+    <div class="col-md-4">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-check-circle"></i>
+            </div>
+
+            <div class="stat-label">
+                Usable Stock
+            </div>
+
+            <div class="stat-value">
+
+                {% set usable_stock = namespace(quantity=0) %}
+
+                {% for batch in batches %}
+
+                    {% if batch.expiry_date >= today and batch.quantity > 0 %}
+
+                        {% set usable_stock.quantity =
+                            usable_stock.quantity + batch.quantity %}
+
+                    {% endif %}
+
+                {% endfor %}
+
+                {{ usable_stock.quantity }}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     BATCH TABLE
+========================= -->
+
+<div class="dashboard-card">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h5 class="mb-1">
+                Batch Details
+            </h5>
+
+            <p class="text-muted small mb-0">
+                Stock batches sorted by expiry date.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Batch</th>
+
+                    <th>Quantity</th>
+
+                    <th>Manufactured</th>
+
+                    <th>Received</th>
+
+                    <th>Expiry</th>
+
+                    <th>Status</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for batch in batches %}
+
+                <tr>
+
+                    <!-- BATCH NUMBER -->
+
+                    <td>
+
+                        <strong>
+                            {{ batch.batch_number }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- QUANTITY -->
+
+                    <td>
+
+                        <strong>
+                            {{ batch.quantity }}
+                        </strong>
+
+                        units
+
+                    </td>
+
+
+                    <!-- MANUFACTURE -->
+
+                    <td>
+
+                        {% if batch.manufacture_date %}
+
+                            {{ batch.manufacture_date }}
+
+                        {% else %}
+
+                            <span class="text-muted">
+                                —
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- RECEIVED -->
+
+                    <td>
+                        {{ batch.received_date }}
+                    </td>
+
+
+                    <!-- EXPIRY -->
+
+                    <td>
+                        {{ batch.expiry_date }}
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        {% if batch.quantity <= 0 %}
+
+                            <span class="status-badge status-danger">
+
+                                <i class="bi bi-x-circle"></i>
+
+                                Out of Stock
+
+                            </span>
+
+                        {% elif batch.expiry_date < today %}
+
+                            <span class="status-badge status-danger">
+
+                                <i class="bi bi-x-circle"></i>
+
+                                Expired
+
+                            </span>
+
+                        {% elif batch.expiry_date == today %}
+
+                            <span class="status-badge status-danger">
+
+                                <i class="bi bi-exclamation-circle"></i>
+
+                                Expires Today
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge status-success">
+
+                                <i class="bi bi-check-circle"></i>
+
+                                Active
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+
+            {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        class="text-center py-5"
+                    >
+
+                        <div class="text-muted">
+
+                            <i class="bi bi-layers fs-1 d-block mb-3"></i>
+
+                            <h6>
+                                No batches found
+                            </h6>
+
+                            <p class="small">
+                                Add stock to create the first batch.
+                            </p>
+
+                            <a
+                                href="{{ url_for(
+                                    'add_batch',
+                                    product_id=product.id
+                                ) }}"
+                                class="btn-retail"
+                            >
+
+                                <i class="bi bi-plus-lg me-1"></i>
+
+                                Add Stock
+
+                            </a>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     BACK
+========================= -->
+
+<div class="mt-4">
+
+    <a
+        href="{{ url_for('inventory') }}"
+        class="text-decoration-none text-muted"
+    >
+
+        <i class="bi bi-arrow-left me-1"></i>
+
+        Back to Inventory
+
+    </a>
+
+</div>
+
+{% endblock %}

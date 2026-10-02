@@ -45,6 +45,7 @@ features = [
     "rainfall",
     "day_of_week",
     "month",
+    "is_weekend",
     "previous_day_sales",
     "rolling_7day_sales",
     "product_id",
@@ -83,6 +84,7 @@ numerical_columns = [
     "rainfall",
     "day_of_week",
     "month",
+    "is_weekend",
     "previous_day_sales",
     "rolling_7day_sales"
 ]

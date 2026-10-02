@@ -1,79 +1,465 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Employee Dashboard</title>
+{% extends "base.html" %}
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-        }
+{% block title %}
+Employee Dashboard - RetailPulse
+{% endblock %}
 
-        h1 {
-            margin-bottom: 5px;
-        }
+{% block content %}
 
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-        }
+<!-- =========================
+     PAGE HEADER
+========================= -->
 
-        .menu {
-            margin-top: 20px;
-        }
+<div class="d-flex justify-content-between align-items-start mb-4">
 
-        .menu a {
-            display: block;
-            width: 250px;
-            padding: 14px;
-            margin-bottom: 12px;
-            text-decoration: none;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            color: black;
-        }
+    <div>
+        <h1 class="page-title">
+            Employee Dashboard
+        </h1>
 
-        .menu a:hover {
-            background-color: #f2f2f2;
-        }
+        <p class="page-subtitle">
+            Welcome back, {{ current_user.username }}.
+            Manage inventory and record sales for
+            <strong>{{ shop.shop_name }}</strong>.
+        </p>
+    </div>
 
-        .logout {
-            margin-top: 30px;
-        }
-    </style>
-</head>
+</div>
 
-<body>
 
-    <h1>Employee Dashboard</h1>
+<!-- =========================
+     STAT CARDS
+========================= -->
 
-    <p class="subtitle">
-        Welcome, {{ current_user.username }}
-    </p>
+<div class="row g-4 mb-4">
 
-    <div class="menu">
+    <!-- Products -->
 
-        <a href="{{ url_for('inventory') }}">
-            📦 Inventory
-        </a>
+    <div class="col-xl-4 col-md-6">
 
-        <a href="{{ url_for('sales') }}">
-            🛒 Sales
-        </a>
+        <div class="stat-card">
 
-        <a href="#">
-            🌦️ Weather & Demand
+            <div class="stat-icon">
+                <i class="bi bi-box-seam"></i>
+            </div>
+
+            <div class="stat-label">
+                Products
+            </div>
+
+            <div class="stat-value">
+                {{ products|length }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Total Stock -->
+
+    <div class="col-xl-4 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-stack"></i>
+            </div>
+
+            <div class="stat-label">
+                Total Stock
+            </div>
+
+            <div class="stat-value">
+                {{ products|sum(attribute='current_stock') }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Low Stock -->
+
+    <div class="col-xl-4 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+
+            <div class="stat-label">
+                Low Stock Items
+            </div>
+
+            <div class="stat-value">
+
+                {{ products
+                   |selectattr('current_stock', 'le', 10)
+                   |list
+                   |length }}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     WEATHER
+========================= -->
+
+<div class="row g-4 mb-4">
+
+    <div class="col-lg-7">
+
+        <div class="dashboard-card">
+
+            <div class="d-flex justify-content-between align-items-start">
+
+                <div>
+
+                    <h5>
+                        Weather Overview
+                    </h5>
+
+                    <p class="text-muted small mb-0">
+                        {{ weather.city }}
+                    </p>
+
+                </div>
+
+                <div class="stat-icon mb-0">
+
+                    <i class="bi bi-cloud-sun"></i>
+
+                </div>
+
+            </div>
+
+
+            <div class="row mt-4">
+
+                <div class="col-4">
+
+                    <small class="text-muted">
+                        Temperature
+                    </small>
+
+                    <h3>
+                        {{ weather.temp }}°C
+                    </h3>
+
+                </div>
+
+
+                <div class="col-4">
+
+                    <small class="text-muted">
+                        Humidity
+                    </small>
+
+                    <h3>
+                        {{ weather.humidity }}%
+                    </h3>
+
+                </div>
+
+
+                <div class="col-4">
+
+                    <small class="text-muted">
+                        Condition
+                    </small>
+
+                    <h6 class="mt-2">
+                        {{ weather.condition }}
+                    </h6>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Employee information -->
+
+    <div class="col-lg-5">
+
+        <div class="dashboard-card h-100">
+
+            <div class="d-flex gap-3">
+
+                <div class="stat-icon">
+
+                    <i class="bi bi-person-check"></i>
+
+                </div>
+
+                <div>
+
+                    <h5>
+                        Employee Access
+                    </h5>
+
+                    <p class="text-muted small mb-0">
+
+                        You can manage inventory and
+                        record sales for your assigned
+                        shop.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     QUICK ACTIONS
+========================= -->
+
+<div class="row g-4 mb-4">
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card">
+
+            <h5 class="mb-3">
+                Quick Actions
+            </h5>
+
+
+            <a
+                href="{{ url_for('inventory') }}"
+                class="btn btn-light w-100 text-start mb-2"
+            >
+
+                <i class="bi bi-boxes me-2"></i>
+
+                Manage Inventory
+
+            </a>
+
+
+            <a
+                href="{{ url_for('sales') }}"
+                class="btn btn-light w-100 text-start"
+            >
+
+                <i class="bi bi-receipt me-2"></i>
+
+                Record Sale
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Weather / Demand -->
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card">
+
+            <h5>
+                RetailPulse Intelligence
+            </h5>
+
+            <p class="text-muted">
+
+                Weather and sales information will
+                be used by RetailPulse to provide
+                demand insights and inventory alerts.
+
+            </p>
+
+
+            <div class="row mt-3">
+
+                <div class="col-md-6">
+
+                    <div class="p-3 rounded bg-light">
+
+                        <i class="bi bi-cloud-sun"></i>
+
+                        <strong class="d-block mt-2">
+                            Weather
+                        </strong>
+
+                        <small class="text-muted">
+                            Current conditions
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <div class="p-3 rounded bg-light">
+
+                        <i class="bi bi-graph-up"></i>
+
+                        <strong class="d-block mt-2">
+                            Demand
+                        </strong>
+
+                        <small class="text-muted">
+                            ML prediction
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     INVENTORY OVERVIEW
+========================= -->
+
+<div class="dashboard-card mb-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div>
+
+            <h5 class="mb-1">
+                Inventory Overview
+            </h5>
+
+            <p class="text-muted small mb-0">
+                Current stock status
+            </p>
+
+        </div>
+
+
+        <a
+            href="{{ url_for('inventory') }}"
+            class="btn btn-sm btn-outline-success"
+        >
+
+            View Inventory
+
         </a>
 
     </div>
 
-    <hr>
 
-    <div class="logout">
-        <a href="{{ url_for('logout') }}">
-            Logout
-        </a>
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Product</th>
+
+                    <th>Category</th>
+
+                    <th>Stock</th>
+
+                    <th>Status</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for item in products[:8] %}
+
+                <tr>
+
+                    <td>
+
+                        <strong>
+                            {{ item.name }}
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+                        {{ item.category }}
+                    </td>
+
+
+                    <td>
+                        {{ item.current_stock }}
+                    </td>
+
+
+                    <td>
+
+                        {% if item.current_stock <= 10 %}
+
+                            <span class="badge text-bg-danger">
+                                Low Stock
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge text-bg-success">
+                                Available
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="4"
+                        class="text-center text-muted py-5"
+                    >
+
+                        No inventory records found.
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
     </div>
 
-</body>
-</html>
+</div>
+
+{% endblock %}

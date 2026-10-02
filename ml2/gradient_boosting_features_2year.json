@@ -1,0 +1,59 @@
+{
+    "model": "GradientBoostingRegressor",
+    "features": [
+        "temperature",
+        "min_temperature",
+        "max_temperature",
+        "humidity",
+        "rainfall",
+        "wind_speed",
+        "pressure",
+        "day_of_week",
+        "month",
+        "day",
+        "is_weekend",
+        "previous_day_sales",
+        "rolling_7day_sales",
+        "product_id",
+        "category",
+        "weather_dependency"
+    ],
+    "categorical_columns": [
+        "product_id",
+        "category",
+        "weather_dependency"
+    ],
+    "numerical_columns": [
+        "temperature",
+        "min_temperature",
+        "max_temperature",
+        "humidity",
+        "rainfall",
+        "wind_speed",
+        "pressure",
+        "day_of_week",
+        "month",
+        "day",
+        "is_weekend",
+        "previous_day_sales",
+        "rolling_7day_sales"
+    ],
+    "target": "demand",
+    "best_parameters": {
+        "n_estimators": 150,
+        "learning_rate": 0.05,
+        "max_depth": 4,
+        "min_samples_split": 3,
+        "min_samples_leaf": 2
+    },
+    "best_validation_mae": 5.788799311515052,
+    "final_test_period": {
+        "start": "2026-01-01",
+        "end": "2026-02-07"
+    },
+    "final_metrics": {
+        "MAE": 5.676370700588627,
+        "RMSE": 6.785120532412524,
+        "R2": 0.28349406220953577
+    }
+}

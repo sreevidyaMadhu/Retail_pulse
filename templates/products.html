@@ -1,52 +1,376 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Products - RetailPulse</title>
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block title %}
+Products - RetailPulse
+{% endblock %}
 
-    <h1>RetailPulse</h1>
 
-    <h2>Product Management</h2>
+{% block content %}
 
-    <p>
-        Welcome, {{ current_user.username }}
-    </p>
+<!-- =========================
+     PAGE HEADER
+========================= -->
 
-    <a href="{{ url_for('add_product') }}">
+<div class="d-flex justify-content-between align-items-start mb-4">
+
+    <div>
+
+        <h1 class="page-title">
+            Products
+        </h1>
+
+        <p class="page-subtitle">
+            Manage products available in your shop.
+        </p>
+
+    </div>
+
+
+    <a href="{{ url_for('add_product') }}"
+       class="btn-retail">
+
+        <i class="bi bi-plus-lg me-2"></i>
+
         Add Product
+
     </a>
 
-    <br><br>
+</div>
 
-    <table border="1" cellpadding="10">
 
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Price</th>
-        </tr>
 
-        {% for product in products %}
+<!-- =========================
+     PRODUCT SUMMARY
+========================= -->
 
-        <tr>
-            <td>{{ product.id }}</td>
-            <td>{{ product.name }}</td>
-            <td>{{ product.category }}</td>
-            <td>₹{{ product.price }}</td>
-        </tr>
+<div class="row g-4 mb-4">
 
-        {% endfor %}
+    <!-- Total Products -->
 
-    </table>
+    <div class="col-xl-4 col-md-6">
 
-    <br>
+        <div class="stat-card">
 
-    <a href="{{ url_for('manager_dashboard') }}">
-        Back to Dashboard
-    </a>
+            <div class="stat-icon">
 
-</body>
-</html>
+                <i class="bi bi-box-seam"></i>
+
+            </div>
+
+            <div class="stat-label">
+                Total Products
+            </div>
+
+            <div class="stat-value">
+                {{ products|length }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Categories -->
+
+    <div class="col-xl-4 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+
+                <i class="bi bi-tags"></i>
+
+            </div>
+
+            <div class="stat-label">
+                Product Categories
+            </div>
+
+            <div class="stat-value">
+
+                {{ products|map(attribute='category')|unique|list|length }}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Weather Products -->
+
+    <div class="col-xl-4 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+
+                <i class="bi bi-cloud-sun"></i>
+
+            </div>
+
+            <div class="stat-label">
+                Weather-Aware Products
+            </div>
+
+            <div class="stat-value">
+                —
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================
+     PRODUCT CATALOGUE
+========================= -->
+
+<div class="dashboard-card">
+
+    <!-- Card Header -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h5 class="mb-1">
+                Product Catalogue
+            </h5>
+
+            <p class="text-muted small mb-0">
+                All products registered for this shop.
+            </p>
+
+        </div>
+
+        <i class="bi bi-boxes fs-2 text-success"></i>
+
+    </div>
+
+
+    <!-- Search + Count -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div class="search-container product-search">
+
+            <i class="bi bi-search"></i>
+
+            <input
+                type="text"
+                id="productSearch"
+                placeholder="Search products..."
+                onkeyup="searchProducts()"
+            >
+
+        </div>
+
+
+        <span class="badge bg-light text-dark px-3 py-2">
+
+            {{ products|length }} Products
+
+        </span>
+
+    </div>
+
+
+
+    <!-- =========================
+         PRODUCT TABLE
+    ========================= -->
+
+    <div class="table-responsive">
+
+        <table class="table align-middle"
+               id="productsTable">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        ID
+                    </th>
+
+                    <th>
+                        PRODUCT
+                    </th>
+
+                    <th>
+                        CATEGORY
+                    </th>
+
+                    <th>
+                        PRICE
+                    </th>
+
+                    <th>
+                        ACTION
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for product in products %}
+
+                <tr>
+
+                    <!-- ID -->
+
+                    <td>
+
+                        <span class="text-muted">
+                            #{{ product.id }}
+                        </span>
+
+                    </td>
+
+
+                    <!-- PRODUCT -->
+
+                    <td>
+
+                        <div class="d-flex align-items-center gap-3">
+
+                            <div class="product-icon">
+
+                                <i class="bi bi-box"></i>
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    {{ product.name }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- CATEGORY -->
+
+                    <td>
+
+                        <span class="badge bg-light text-dark">
+
+                            {{ product.category }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- PRICE -->
+
+                    <td>
+
+                        <strong>
+                            ₹{{ "%.2f"|format(product.price) }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- ACTION -->
+
+                    <td>
+
+                        <span class="text-muted small">
+                            Product
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="5"
+                        class="text-center text-muted py-5">
+
+                        <i class="bi bi-box-seam fs-1 d-block mb-3"></i>
+
+                        <h6>
+                            No products found
+                        </h6>
+
+                        <p class="small mb-0">
+                            Add your first product to get started.
+                        </p>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================
+     SEARCH SCRIPT
+========================= -->
+
+<script>
+
+function searchProducts() {
+
+    let input =
+        document.getElementById("productSearch")
+        .value
+        .toLowerCase();
+
+    let table =
+        document.getElementById("productsTable");
+
+    let rows =
+        table.getElementsByTagName("tbody")[0]
+            .getElementsByTagName("tr");
+
+
+    for (let i = 0; i < rows.length; i++) {
+
+        let text =
+            rows[i].innerText.toLowerCase();
+
+        if (text.includes(input)) {
+
+            rows[i].style.display = "";
+
+        } else {
+
+            rows[i].style.display = "none";
+
+        }
+
+    }
+
+}
+
+</script>
+
+
+{% endblock %}

@@ -1,120 +1,318 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Add Product - RetailPulse</title>
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block title %}
+Add Product - RetailPulse
+{% endblock %}
 
-    <h1>RetailPulse</h1>
+{% block content %}
 
-    <h2>Add New Product</h2>
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-start mb-4">
+
+    <div>
+        <h1 class="page-title">
+            Add Product
+        </h1>
+
+        <p class="page-subtitle">
+            Add a new product and its initial inventory details.
+        </p>
+    </div>
+
+    <a href="{{ url_for('products') }}"
+       class="btn btn-light">
+
+        <i class="bi bi-arrow-left me-2"></i>
+
+        Back to Products
+
+    </a>
+
+</div>
+
+
+<!-- Product Form -->
+<div class="dashboard-card">
 
     <form method="POST">
 
-        <h3>Product Details</h3>
+        <!-- =========================
+             PRODUCT DETAILS
+        ========================== -->
 
-        <label>Product Name:</label>
-        <br>
-        <input type="text" name="name" required>
+        <div class="mb-4">
 
-        <br><br>
+            <h5 class="mb-1">
+                <i class="bi bi-box-seam me-2"></i>
+                Product Details
+            </h5>
 
-        <label>Category:</label>
-        <br>
-        <input type="text" name="category" required>
+            <p class="text-muted small">
+                Enter the basic information about the product.
+            </p>
 
-        <br><br>
+        </div>
 
-        <label>Price:</label>
-        <br>
-        <input
-            type="number"
-            name="price"
-            step="0.01"
-            min="0"
-            required
-        >
 
-        <hr>
+        <div class="row g-4">
 
-        <h3>Initial Inventory</h3>
+            <!-- Product Name -->
+            <div class="col-md-6">
 
-        <label>Quantity:</label>
-        <br>
-        <input
-            type="number"
-            name="quantity"
-            min="1"
-            required
-        >
+                <label class="form-label">
+                    Product Name
+                </label>
 
-        <br><br>
+                <input
+                    type="text"
+                    name="name"
+                    class="form-control"
+                    placeholder="Enter product name"
+                    required
+                >
 
-        <label>Reorder Level:</label>
-        <br>
-        <input
-            type="number"
-            name="reorder_level"
-            min="0"
-            value="10"
-            required
-        >
+            </div>
 
-        <hr>
 
-        <h3>Initial Batch</h3>
+            <!-- Category -->
+            <div class="col-md-6">
 
-        <label>Batch Number:</label>
-        <br>
-        <input
-            type="text"
-            name="batch_number"
-            required
-        >
+                <label class="form-label">
+                    Category
+                </label>
 
-        <br><br>
+                <input
+                    type="text"
+                    name="category"
+                    class="form-control"
+                    placeholder="Enter category"
+                    required
+                >
 
-        <label>Manufacture Date:</label>
-        <br>
-        <input
-            type="date"
-            name="manufacture_date"
-        >
+            </div>
 
-        <br><br>
 
-        <label>Received Date:</label>
-        <br>
-        <input
-            type="date"
-            name="received_date"
-            required
-        >
+            <!-- Price -->
+            <div class="col-md-6">
 
-        <br><br>
+                <label class="form-label">
+                    Price
+                </label>
 
-        <label>Expiry Date:</label>
-        <br>
-        <input
-            type="date"
-            name="expiry_date"
-            required
-        >
+                <div class="input-group">
 
-        <br><br>
+                    <span class="input-group-text">
+                        ₹
+                    </span>
 
-        <button type="submit">
-            Add Product
-        </button>
+                    <input
+                        type="number"
+                        name="price"
+                        class="form-control"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <hr class="my-5">
+
+
+        <!-- =========================
+             INITIAL INVENTORY
+        ========================== -->
+
+        <div class="mb-4">
+
+            <h5 class="mb-1">
+                <i class="bi bi-stack me-2"></i>
+                Initial Inventory
+            </h5>
+
+            <p class="text-muted small">
+                Set the starting stock quantity and reorder level.
+            </p>
+
+        </div>
+
+
+        <div class="row g-4">
+
+            <!-- Quantity -->
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Initial Quantity
+                </label>
+
+                <input
+                    type="number"
+                    name="quantity"
+                    class="form-control"
+                    min="1"
+                    placeholder="Enter quantity"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Reorder Level -->
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Reorder Level
+                </label>
+
+                <input
+                    type="number"
+                    name="reorder_level"
+                    class="form-control"
+                    min="0"
+                    value="10"
+                    required
+                >
+
+                <small class="text-muted">
+                    Alert will be generated when stock reaches this level.
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <hr class="my-5">
+
+
+        <!-- =========================
+             INITIAL BATCH
+        ========================== -->
+
+        <div class="mb-4">
+
+            <h5 class="mb-1">
+                <i class="bi bi-calendar-check me-2"></i>
+                Initial Batch
+            </h5>
+
+            <p class="text-muted small">
+                Enter batch and expiry information for the initial stock.
+            </p>
+
+        </div>
+
+
+        <div class="row g-4">
+
+            <!-- Batch Number -->
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Batch Number
+                </label>
+
+                <input
+                    type="text"
+                    name="batch_number"
+                    class="form-control"
+                    placeholder="Example: BATCH-001"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Received Date -->
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Received Date
+                </label>
+
+                <input
+                    type="date"
+                    name="received_date"
+                    class="form-control"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Manufacture Date -->
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Manufacture Date
+                </label>
+
+                <input
+                    type="date"
+                    name="manufacture_date"
+                    class="form-control"
+                >
+
+            </div>
+
+
+            <!-- Expiry Date -->
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Expiry Date
+                </label>
+
+                <input
+                    type="date"
+                    name="expiry_date"
+                    class="form-control"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             FORM ACTIONS
+        ========================== -->
+
+        <div class="d-flex justify-content-end gap-2 mt-5">
+
+            <a
+                href="{{ url_for('products') }}"
+                class="btn btn-light"
+            >
+
+                Cancel
+
+            </a>
+
+
+            <button
+                type="submit"
+                class="btn-retail"
+            >
+
+                <i class="bi bi-check-lg me-2"></i>
+
+                Add Product
+
+            </button>
+
+        </div>
 
     </form>
 
-    <br>
+</div>
 
-    <a href="{{ url_for('products') }}">
-        Back to Products
-    </a>
-
-</body>
-</html>
+{% endblock %}

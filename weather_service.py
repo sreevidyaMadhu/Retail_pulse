@@ -1,63 +1,189 @@
+import os
 import requests
+from dotenv import load_dotenv
 
-# OpenWeatherMap API Key
-# (Using fallback mock mode if key is default)
-API_KEY = "c2bd5cb2c0ab9c420634537aa5016d5f"
+load_dotenv()
+
+# OpenWeatherMap API key
+API_KEY = os.getenv("OPENWEATHER_API_KEY")
+
 
 def fetch_weather_by_city(city_name):
     """
-    Fetch live weather metrics for a given city.
-    Returns temperature, humidity, rainfall, and a simplified condition.
+    Fetch current weather information for a city.
+
+    Returns the weather features required by the
+    RetailPulse demand prediction model.
     """
-    if API_KEY == "c2bd5cb2c0ab9c420634537aa5016d5f":
-        # Fallback mock data so you can test without an API key right away
+
+    # Temporary mock mode if API key is not configured
+    if not API_KEY:
         return {
             "city": city_name,
             "temp": 32.5,
+            "min_temperature": 27.0,
+            "max_temperature": 34.0,
             "humidity": 75,
             "rainfall": 0.0,
+            "wind_speed": 6.0,
+            "pressure": 1012.0,
             "condition": "Hot",
             "description": "clear sky"
         }
 
-    url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={API_KEY}&units=metric"
-    
-    try:
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            data = response.json()
-            
-            rain_mm = data.get("rain", {}).get("1h", 0.0)
-            temp = data["main"]["temp"]
-            humidity = data["main"]["humidity"]
-            main_condition = data["weather"][0]["main"]
-            
-            # Categorize condition for inventory logic
-            if temp >= 30:
-                simplified_condition = "Hot"
-            elif rain_mm > 0 or main_condition in ["Rain", "Drizzle", "Thunderstorm"]:
-                simplified_condition = "Rainy"
-            elif temp <= 20:
-                simplified_condition = "Cold"
-            else:
-                simplified_condition = "Normal"
+    url = (
+        "https://api.openweathermap.org/data/2.5/weather"
+        f"?q={city_name}"
+        f"&appid={API_KEY}"
+        "&units=metric"
+    )
 
-            return {
-                "city": data["name"],
-                "temp": temp,
-                "humidity": humidity,
-                "rainfall": rain_mm,
-                "condition": simplified_condition,
-                "description": data["weather"][0]["description"]
-            }
-        else:
-            print(f"Weather API Error: Status Code {response.status_code}")
+    try:
+
+        response = requests.get(
+            url,
+            timeout=5
+        )
+
+        if response.status_code != 200:
+
+            print(
+                f"Weather API Error: "
+                f"Status Code {response.status_code}"
+            )
+
             return None
+
+        data = response.json()
+
+        # -------------------------
+        # WEATHER VALUES
+        # -------------------------
+
+        temp = data["main"]["temp"]
+
+        min_temperature = data["main"]["temp_min"]
+
+        max_temperature = data["main"]["temp_max"]
+
+        humidity = data["main"]["humidity"]
+
+        pressure = data["main"]["pressure"]
+
+        wind_speed = data.get(
+            "wind",
+            {}
+        ).get(
+            "speed",
+            0.0
+        )
+
+        # -------------------------
+        # RAINFALL
+        # -------------------------
+
+        rainfall = data.get(
+            "rain",
+            {}
+        ).get(
+            "1h",
+            0.0
+        )
+
+        # -------------------------
+        # WEATHER CONDITION
+        # -------------------------
+
+        main_condition = data["weather"][0]["main"]
+
+        description = data["weather"][0]["description"]
+
+        if temp >= 30:
+
+            simplified_condition = "Hot"
+
+        elif (
+            rainfall > 0
+            or main_condition in [
+                "Rain",
+                "Drizzle",
+                "Thunderstorm"
+            ]
+        ):
+
+            simplified_condition = "Rainy"
+
+        elif temp <= 20:
+
+            simplified_condition = "Cold"
+
+        else:
+
+            simplified_condition = "Normal"
+
+        # -------------------------
+        # RETURN DATA
+        # -------------------------
+
+        return {
+
+            "city": data["name"],
+
+            "temp": temp,
+
+            "min_temperature": min_temperature,
+
+            "max_temperature": max_temperature,
+
+            "humidity": humidity,
+
+            "rainfall": rainfall,
+
+            "wind_speed": wind_speed,
+
+            "pressure": pressure,
+
+            "condition": simplified_condition,
+
+            "description": description
+        }
+
     except Exception as e:
-        print(f"Failed to connect to Weather API: {e}")
+
+        print(
+            f"Failed to connect to Weather API: {e}"
+        )
+
         return None
 
-# Test script locally
+
+# ---------------------------------
+# TEST WEATHER SERVICE
+# ---------------------------------
+
 if __name__ == "__main__":
-    test_weather = fetch_weather_by_city("Thiruvananthapuram")
-    print("Fetched Weather:", test_weather)
+
+    print("=" * 50)
+
+    print("Testing RetailPulse Weather Service")
+
+    print("=" * 50)
+
+    weather = fetch_weather_by_city(
+        "Thiruvananthapuram"
+    )
+
+    if weather:
+
+        print("\nWeather Data")
+        print("------------------------------")
+
+        for key, value in weather.items():
+
+            print(
+                f"{key:20}: {value}"
+            )
+
+    else:
+
+        print("\nWeather data could not be fetched.")

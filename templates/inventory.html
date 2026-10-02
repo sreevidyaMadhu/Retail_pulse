@@ -1,66 +1,281 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Inventory - RetailPulse</title>
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block title %}
+Inventory - RetailPulse
+{% endblock %}
 
-    <h1>RetailPulse</h1>
+{% block content %}
 
-    <h2>Inventory</h2>
+<!-- =========================
+     PAGE HEADER
+========================= -->
 
-    <table border="1" cellpadding="10">
+<div class="d-flex justify-content-between align-items-start mb-4">
 
-        <tr>
-            <th>Product</th>
-            <th>Category</th>
-            <th>Quantity</th>
-            <th>Reorder Level</th>
-            <th>Status</th>
-            <th>Batches</th>
-        </tr>
+    <div>
 
-        {% for item in inventory_data %}
+        <h1 class="page-title">
+            Inventory
+        </h1>
 
-        <tr>
+        <p class="page-subtitle">
+            Monitor current stock levels and product batches.
+        </p>
 
-            <td>{{ item.product.name }}</td>
+    </div>
 
-            <td>{{ item.product.category }}</td>
+</div>
 
-            <td>{{ item.stock.quantity }}</td>
 
-            <td>{{ item.stock.reorder_level }}</td>
+<!-- =========================
+     INVENTORY SUMMARY
+========================= -->
 
-            <td>
-                {% if item.stock.quantity <= item.stock.reorder_level %}
-                    Reorder
-                {% else %}
-                    In Stock
-                {% endif %}
-            </td>
+<div class="row g-4 mb-4">
 
-            <td>
-                <a href="{{ url_for(
-                    'view_batches',
-                    product_id=item.product.id
-                ) }}">
-                    View Batches
-                </a>
-            </td>
+    <!-- Total Products -->
+    <div class="col-xl-6 col-md-6">
 
-        </tr>
+        <div class="stat-card">
 
-        {% endfor %}
+            <div class="stat-icon">
+                <i class="bi bi-box-seam"></i>
+            </div>
 
-    </table>
+            <div class="stat-label">
+                Products
+            </div>
 
-    <br>
+            <div class="stat-value">
+                {{ inventory_data|length }}
+            </div>
 
-    <a href="{{ url_for('manager_dashboard') }}">
-        Back to Dashboard
-    </a>
+        </div>
 
-</body>
-</html>
+    </div>
+
+
+    <!-- Total Stock -->
+    <div class="col-xl-6 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-stack"></i>
+            </div>
+
+            <div class="stat-label">
+                Total Stock
+            </div>
+
+            <div class="stat-value">
+                {{ inventory_data|sum(attribute='stock.quantity') }}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     INVENTORY TABLE
+========================= -->
+
+<div class="dashboard-card">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h5 class="mb-1">
+                Stock Overview
+            </h5>
+
+            <p class="text-muted small mb-0">
+                Current inventory status for your shop.
+            </p>
+
+        </div>
+
+        <span class="badge bg-light text-dark">
+            {{ inventory_data|length }} Products
+        </span>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table align-middle inventory-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Product</th>
+
+                    <th>Category</th>
+
+                    <th>Current Stock</th>
+
+                    <th>Status</th>
+
+                    <th class="text-end">
+                        Actions
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for item in inventory_data %}
+
+                <tr>
+
+                    <!-- PRODUCT -->
+
+                    <td>
+
+                        <div class="d-flex align-items-center gap-3">
+
+                            <div class="product-icon">
+                                <i class="bi bi-box"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    {{ item.product.name }}
+                                </strong>
+
+                                <div class="text-muted small">
+                                    #{{ item.product.id }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- CATEGORY -->
+
+                    <td>
+
+                        <span class="badge bg-light text-dark">
+                            {{ item.product.category }}
+                        </span>
+
+                    </td>
+
+
+                    <!-- CURRENT STOCK -->
+
+                    <td>
+
+                        <strong>
+                            {{ item.stock.quantity }}
+                        </strong>
+
+                        units
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        {% if item.stock.quantity > 0 %}
+
+                            <span class="status-badge status-success">
+
+                                <i class="bi bi-check-circle"></i>
+
+                                In Stock
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge status-danger">
+
+                                <i class="bi bi-exclamation-circle"></i>
+
+                                Out of Stock
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- ACTIONS -->
+
+                    <td class="text-end">
+
+                        <a
+                            href="{{ url_for(
+                                'view_batches',
+                                product_id=item.product.id
+                            ) }}"
+                            class="btn btn-sm btn-outline-success"
+                        >
+
+                            <i class="bi bi-layers me-1"></i>
+
+                            Batches
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+
+            {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="5"
+                        class="text-center py-5"
+                    >
+
+                        <div class="text-muted">
+
+                            <i class="bi bi-box-seam fs-1 d-block mb-3"></i>
+
+                            <h6>
+                                No inventory found
+                            </h6>
+
+                            <p class="small mb-0">
+                                Products with inventory records
+                                will appear here.
+                            </p>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

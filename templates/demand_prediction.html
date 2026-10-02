@@ -1,0 +1,509 @@
+{% extends "base.html" %}
+
+{% block title %}
+Demand Prediction - RetailPulse
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1 class="page-title">
+            Demand Prediction
+        </h1>
+
+        <p class="page-subtitle">
+            AI-powered product demand predictions using historical sales and current weather.
+        </p>
+    </div>
+</div>
+
+
+<!-- Summary Cards -->
+<div class="row g-4 mb-4">
+
+    <!-- Products Analysed -->
+    <div class="col-xl-4 col-md-4">
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-box-seam"></i>
+            </div>
+
+            <div class="stat-label">
+                Products Analysed
+            </div>
+
+            <div class="stat-value">
+                {{ demand_predictions|length }}
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Average Demand -->
+    <div class="col-xl-4 col-md-4">
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-bar-chart"></i>
+            </div>
+
+            <div class="stat-label">
+                Average Predicted Demand
+            </div>
+
+            <div class="stat-value">
+                {% if demand_predictions %}
+                    {{ (
+                        demand_predictions
+                        |sum(attribute='predicted_demand')
+                        / demand_predictions|length
+                    )|round(1) }}
+                {% else %}
+                    0
+                {% endif %}
+
+                <span class="fs-6 text-muted">
+                    units
+                </span>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Highest Demand -->
+    <div class="col-xl-4 col-md-4">
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+
+            <div class="stat-label">
+                Highest Predicted Demand
+            </div>
+
+            <div class="stat-value">
+
+                {% if demand_predictions %}
+                    {{ demand_predictions[0].predicted_demand|round(0)|int }}
+                {% else %}
+                    0
+                {% endif %}
+
+                <span class="fs-6 text-muted">
+                    units
+                </span>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Prediction Method -->
+<div class="dashboard-card mb-4">
+
+    <div class="d-flex align-items-start gap-3">
+
+        <div class="stat-icon">
+            <i class="bi bi-cpu"></i>
+        </div>
+
+        <div>
+
+            <h5 class="mb-2">
+                How RetailPulse Predicts Demand
+            </h5>
+
+            <p class="text-muted mb-3">
+                The trained Random Forest model combines historical sales,
+                product information, date features, and current weather
+                conditions to estimate expected product demand.
+            </p>
+
+            <div class="d-flex flex-wrap align-items-center gap-2">
+
+                <span class="badge bg-light text-dark px-3 py-2">
+                    Historical Sales
+                </span>
+
+                <i class="bi bi-arrow-right text-muted"></i>
+
+                <span class="badge bg-light text-dark px-3 py-2">
+                    Current Weather
+                </span>
+
+                <i class="bi bi-arrow-right text-muted"></i>
+
+                <span class="badge bg-light text-dark px-3 py-2">
+                    Product Information
+                </span>
+
+                <i class="bi bi-arrow-right text-muted"></i>
+
+                <span class="badge bg-light text-dark px-3 py-2">
+                    Date Features
+                </span>
+
+                <i class="bi bi-arrow-right text-muted"></i>
+
+                <span class="badge bg-success text-white px-3 py-2">
+                    Random Forest
+                </span>
+
+                <i class="bi bi-arrow-right text-muted"></i>
+
+                <span class="badge bg-primary text-white px-3 py-2">
+                    Predicted Demand
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Current Weather -->
+{% if weather %}
+
+<div class="dashboard-card mb-4">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+
+            <h5 class="mb-1">
+                Weather Used for Prediction
+            </h5>
+
+            <p class="text-muted small mb-0">
+                Current weather conditions from {{ shop.city }}.
+            </p>
+
+        </div>
+
+        <span class="badge bg-light text-dark">
+            <i class="bi bi-geo-alt me-1"></i>
+            {{ shop.city }}
+        </span>
+
+    </div>
+
+
+    <div class="row mt-3">
+
+        <div class="col-md-3">
+
+            <div class="text-muted small">
+                Temperature
+            </div>
+
+            <strong>
+                {{ weather.temp }}°C
+            </strong>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="text-muted small">
+                Humidity
+            </div>
+
+            <strong>
+                {{ weather.humidity }}%
+            </strong>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="text-muted small">
+                Rainfall
+            </div>
+
+            <strong>
+                {{ weather.rainfall }} mm
+            </strong>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="text-muted small">
+                Condition
+            </div>
+
+            <strong>
+                {{ weather.condition }}
+            </strong>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+<!-- Demand Prediction Table -->
+<div class="dashboard-card">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h5 class="mb-1">
+                Product Demand Predictions
+            </h5>
+
+            <p class="text-muted small mb-0">
+                Expected demand for products based on the latest available data.
+            </p>
+
+        </div>
+
+        <span class="badge bg-light text-dark">
+            {{ demand_predictions|length }} Products
+        </span>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Product
+                    </th>
+
+                    <th>
+                        Category
+                    </th>
+
+                    <th>
+                        Predicted Demand
+                    </th>
+
+                    <th>
+                        Previous Day Sales
+                    </th>
+
+                    <th>
+                        7-Day Avg. Sales
+                    </th>
+
+                    <th>
+                        Weather Dependency
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for item in demand_predictions %}
+
+                <tr>
+
+                    <!-- Product -->
+                    <td>
+
+                        <div class="d-flex align-items-center gap-3">
+
+                            <div class="product-icon">
+                                <i class="bi bi-box"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    {{ item.product.name }}
+                                </strong>
+
+                                <div class="text-muted small">
+                                    #{{ item.product.id }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- Category -->
+                    <td>
+
+                        <span class="badge bg-light text-dark">
+                            {{ item.product.category }}
+                        </span>
+
+                    </td>
+
+
+                    <!-- Predicted Demand -->
+                    <td>
+
+                        <strong class="text-primary">
+
+                            {{ item.predicted_demand|round(0)|int }}
+
+                        </strong>
+
+                        <span class="text-muted">
+                            units
+                        </span>
+
+                    </td>
+
+
+                    <!-- Previous Day Sales -->
+                    <td>
+
+                        {{ item.previous_day_sales|round(0)|int }}
+
+                        <span class="text-muted">
+                            units
+                        </span>
+
+                    </td>
+
+
+                    <!-- 7 Day Average -->
+                    <td>
+
+                        {{ item.rolling_7day_sales|round(1) }}
+
+                        <span class="text-muted">
+                            units/day
+                        </span>
+
+                    </td>
+
+
+                    <!-- Weather Dependency -->
+                    <td>
+
+                        {% if item.product.weather_dependency %}
+
+                            {% if item.product.weather_dependency == "Very High" %}
+
+                                <span class="badge bg-danger-subtle text-danger">
+                                    {{ item.product.weather_dependency }}
+                                </span>
+
+                            {% elif item.product.weather_dependency == "High" %}
+
+                                <span class="badge bg-warning-subtle text-warning-emphasis">
+                                    {{ item.product.weather_dependency }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-info-subtle text-info-emphasis">
+                                    {{ item.product.weather_dependency }}
+                                </span>
+
+                            {% endif %}
+
+                        {% else %}
+
+                            <span class="text-muted">
+                                Not specified
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+
+            {% else %}
+
+                <tr>
+
+                    <td colspan="6" class="text-center py-5">
+
+                        <div class="text-muted">
+
+                            <i class="bi bi-graph-up fs-1 d-block mb-3"></i>
+
+                            <h6>
+                                No predictions available
+                            </h6>
+
+                            <p class="small mb-0">
+                                Demand predictions could not be generated.
+                            </p>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- Explanation -->
+<div class="dashboard-card mt-4">
+
+    <div class="d-flex gap-3">
+
+        <div class="stat-icon">
+            <i class="bi bi-info-circle"></i>
+        </div>
+
+        <div>
+
+            <h5 class="mb-2">
+                About the Prediction
+            </h5>
+
+            <p class="text-muted mb-0">
+                RetailPulse uses a trained Random Forest Regression model
+                to estimate product demand. The prediction considers recent
+                sales behaviour, product category, weather dependency,
+                temperature, humidity, rainfall, wind speed, pressure,
+                and date-related features.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

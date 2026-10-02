@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>RetailPulse Dashboard</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+
+        :root {
+            --green-dark: #12372a;
+            --green: #1f6f54;
+            --green-light: #e8f5ef;
+            --lime: #b8e986;
+            --cream: #f6f8f5;
+            --white: #ffffff;
+            --text: #1d2923;
+            --muted: #728078;
+            --border: #e7ece9;
+            --red: #dc5a5a;
+            --orange: #e69b45;
+            --blue: #4d8fd8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--cream);
+            color: var(--text);
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 245px;
+            background: var(--green-dark);
+            color: white;
+            padding: 25px 18px;
+            z-index: 1000;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px 30px;
+            font-size: 23px;
+            font-weight: bold;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: var(--lime);
+            color: var(--green-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .menu-title {
+            color: #91a79c;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 18px 12px 8px;
+        }
+
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 14px;
+            margin: 4px 0;
+            border-radius: 10px;
+            color: #d8e5df;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .nav-link-custom:hover,
+        .nav-link-custom.active {
+            background: #24523f;
+            color: white;
+        }
+
+        .nav-link-custom i {
+            font-size: 18px;
+        }
+
+        .sidebar-bottom {
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            bottom: 20px;
+        }
+
+        .user-box {
+            background: #1c4937;
+            padding: 13px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--lime);
+            color: var(--green-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #9eb5aa;
+        }
+
+
+        /* =========================
+           MAIN AREA
+        ========================= */
+
+        .main {
+            margin-left: 245px;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           TOP NAVBAR
+        ========================= */
+
+        .topbar {
+            height: 75px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 35px;
+        }
+
+        .search-box {
+            width: 300px;
+            background: #f5f7f5;
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            background: transparent;
+            width: 100%;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification {
+            position: relative;
+            font-size: 20px;
+            color: var(--muted);
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 0;
+            right: -2px;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--red);
+        }
+
+        .logout {
+            background: #fceaea;
+            color: var(--red);
+            padding: 8px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .logout:hover {
+            background: #f8dcdc;
+        }
+
+
+        /* =========================
+           CONTENT
+        ========================= */
+
+        .content {
+            padding: 30px 35px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .page-subtitle {
+            color: var(--muted);
+            margin-bottom: 28px;
+        }
+
+        /* =========================
+           STAT CARDS
+        ========================= */
+
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            height: 100%;
+            transition: 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(18,55,42,0.08);
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+        }
+
+        .green-icon {
+            background: var(--green-light);
+            color: var(--green);
+        }
+
+        .orange-icon {
+            background: #fff1df;
+            color: var(--orange);
+        }
+
+        .red-icon {
+            background: #fdeaea;
+            color: var(--red);
+        }
+
+        .blue-icon {
+            background: #eaf3fc;
+            color: var(--blue);
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 14px;
+            margin-top: 17px;
+        }
+
+        .stat-value {
+            font-size: 30px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .stat-description {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+
+        /* =========================
+           COMMON CARD
+        ========================= */
+
+        .card-custom {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            height: 100%;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .card-header-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+
+        /* =========================
+           WEATHER
+        ========================= */
+
+        .weather-card {
+            background: linear-gradient(135deg, #12372a, #245b45);
+            color: white;
+            border-radius: 16px;
+            padding: 24px;
+            height: 100%;
+        }
+
+        .weather-location {
+            color: #b9cec4;
+            font-size: 13px;
+        }
+
+        .weather-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 25px 0;
+        }
+
+        .temperature {
+            font-size: 45px;
+            font-weight: 700;
+        }
+
+        .weather-icon {
+            font-size: 55px;
+            color: var(--lime);
+        }
+
+        .weather-condition {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .weather-description {
+            color: #c1d2ca;
+            font-size: 13px;
+        }
+
+        .weather-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .weather-detail {
+            background: rgba(255,255,255,0.08);
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .weather-detail span {
+            display: block;
+            color: #b9cec4;
+            font-size: 11px;
+        }
+
+        .weather-detail strong {
+            font-size: 15px;
+        }
+
+
+        /* =========================
+           INVENTORY TABLE
+        ========================= */
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-custom th {
+            text-align: left;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table-custom td {
+            padding: 13px 10px;
+            border-bottom: 1px solid #f0f2f1;
+            font-size: 13px;
+        }
+
+        .stock-badge {
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .stock-good {
+            background: #e7f5ec;
+            color: #24734d;
+        }
+
+        .stock-low {
+            background: #fff0db;
+            color: #b36a18;
+        }
+
+        .stock-critical {
+            background: #fde5e5;
+            color: #bd4141;
+        }
+
+
+        /* =========================
+           AI INSIGHT
+        ========================= */
+
+        .ai-card {
+            background: #f0f8f3;
+            border: 1px solid #d9ecdf;
+            border-radius: 16px;
+            padding: 22px;
+        }
+
+        .ai-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .ai-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-text {
+            color: #5f7168;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 15px;
+        }
+
+        .ai-btn {
+            display: inline-block;
+            margin-top: 10px;
+            background: var(--green);
+            color: white;
+            padding: 9px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+
+        /* =========================
+           RISK LIST
+        ========================= */
+
+        .risk-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .risk-item:last-child {
+            border-bottom: none;
+        }
+
+        .risk-product {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .risk-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--red);
+        }
+
+        .risk-dot.orange {
+            background: var(--orange);
+        }
+
+        .risk-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .risk-text {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+
+        /* =========================
+           QUICK ACTIONS
+        ========================= */
+
+        .quick-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            border: none;
+            background: #f6f8f6;
+            color: var(--text);
+            padding: 13px;
+            border-radius: 10px;
+            margin-bottom: 9px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .quick-btn:hover {
+            background: var(--green-light);
+            color: var(--green);
+        }
+
+        .quick-btn i {
+            font-size: 17px;
+        }
+
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            color: var(--muted);
+            font-size: 12px;
+            text-align: center;
+            padding: 30px;
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 992px) {
+
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                margin-left: 210px;
+            }
+
+            .content {
+                padding: 25px;
+            }
+
+            .search-box {
+                width: 220px;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .sidebar-bottom {
+                position: relative;
+                left: auto;
+                right: auto;
+                bottom: auto;
+                margin-top: 20px;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .topbar {
+                padding: 0 20px;
+            }
+
+            .search-box {
+                display: none;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+    <div class="brand">
+        <div class="brand-icon">
+            <i class="bi bi-bar-chart-line-fill"></i>
+        </div>
+
+        <span>RetailPulse</span>
+    </div>
+
+
+    <div class="menu-title">
+        Main Menu
+    </div>
+
+    <a href="#" class="nav-link-custom active">
+        <i class="bi bi-grid-fill"></i>
+        Dashboard
+    </a>
+
+
+    <div class="menu-title">
+        Inventory Management
+    </div>
+
+    <a href="/manager/products/add" class="nav-link-custom">
+        <i class="bi bi-box-seam"></i>
+        Products
+    </a>
+
+    <a href="/manager/inventory" class="nav-link-custom">
+        <i class="bi bi-clipboard-data"></i>
+        Inventory
+    </a>
+
+    <a href="/manager/sales" class="nav-link-custom">
+        <i class="bi bi-receipt"></i>
+        Sales
+    </a>
+
+
+    <div class="menu-title">
+        Intelligence
+    </div>
+
+    <a href="#" class="nav-link-custom">
+        <i class="bi bi-cloud-sun"></i>
+        Weather Insights
+    </a>
+
+    <a href="#" class="nav-link-custom">
+        <i class="bi bi-graph-up-arrow"></i>
+        Demand Prediction
+    </a>
+
+    <a href="#" class="nav-link-custom">
+        <i class="bi bi-exclamation-triangle"></i>
+        Risk Alerts
+    </a>
+
+
+    <div class="sidebar-bottom">
+
+        <div class="user-box">
+
+            <div class="user-icon">
+                <i class="bi bi-person-fill"></i>
+            </div>
+
+            <div>
+                <div class="user-name">
+                    {{ current_user.username }}
+                </div>
+
+                <div class="user-role">
+                    {{ current_user.role|capitalize }}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</aside>
+
+
+<!-- =====================================================
+     MAIN CONTENT
+===================================================== -->
+
+<main class="main">
+
+
+    <!-- TOP BAR -->
+
+    <header class="topbar">
+
+        <div class="search-box">
+
+            <i class="bi bi-search"></i>
+
+            <input
+                type="text"
+                placeholder="Search products..."
+            >
+
+        </div>
+
+
+        <div class="top-actions">
+
+            <div class="notification">
+
+                <i class="bi bi-bell"></i>
+
+                <span class="notification-dot"></span>
+
+            </div>
+
+
+            <a href="/logout" class="logout">
+
+                <i class="bi bi-box-arrow-right"></i>
+
+                Logout
+
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- =================================================
+         DASHBOARD CONTENT
+    ================================================= -->
+
+    <section class="content">
+
+
+        <!-- HEADER -->
+
+        <h1 class="page-title">
+            Dashboard
+        </h1>
+
+        <p class="page-subtitle">
+
+            Welcome back! Here's what's happening at
+            <strong>{{ shop.shop_name }}</strong>.
+
+        </p>
+
+
+        <!-- =================================================
+             STAT CARDS
+        ================================================= -->
+
+        <div class="row g-4 mb-4">
+
+
+            <!-- PRODUCTS -->
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div>
+                            <div class="stat-label">
+                                Total Products
+                            </div>
+
+                            <div class="stat-value">
+                                {{ products|length }}
+                            </div>
+
+                            <div class="stat-description">
+                                Products in your store
+                            </div>
+                        </div>
+
+                        <div class="stat-icon green-icon">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- STOCK -->
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div>
+
+                            <div class="stat-label">
+                                Current Stock
+                            </div>
+
+                            <div class="stat-value">
+
+                                {{ products|sum(attribute='current_stock') }}
+
+                            </div>
+
+                            <div class="stat-description">
+                                Units currently available
+                            </div>
+
+                        </div>
+
+                        <div class="stat-icon blue-icon">
+                            <i class="bi bi-stack"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- LOW STOCK -->
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div>
+
+                            <div class="stat-label">
+                                Low Stock
+                            </div>
+
+                            <div class="stat-value">
+
+                                {{ products
+                                   |selectattr('current_stock', 'le', 10)
+                                   |list
+                                   |length }}
+
+                            </div>
+
+                            <div class="stat-description">
+                                Products need attention
+                            </div>
+
+                        </div>
+
+                        <div class="stat-icon orange-icon">
+                            <i class="bi bi-exclamation-circle"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- WEATHER -->
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div>
+
+                            <div class="stat-label">
+                                Temperature
+                            </div>
+
+                            <div class="stat-value">
+
+                                {{ weather.temp }}°C
+
+                            </div>
+
+                            <div class="stat-description">
+
+                                {{ weather.condition }}
+
+                            </div>
+
+                        </div>
+
+                        <div class="stat-icon red-icon">
+
+                            <i class="bi bi-thermometer-half"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             WEATHER + AI
+        ================================================= -->
+
+        <div class="row g-4 mb-4">
+
+
+            <!-- WEATHER -->
+
+            <div class="col-lg-5">
+
+                <div class="weather-card">
+
+                    <div class="weather-location">
+
+                        <i class="bi bi-geo-alt"></i>
+
+                        {{ weather.city }}
+
+                    </div>
+
+
+                    <div class="weather-main">
+
+                        <div>
+
+                            <div class="temperature">
+
+                                {{ weather.temp }}°C
+
+                            </div>
+
+                            <div class="weather-condition">
+
+                                {{ weather.condition }}
+
+                            </div>
+
+                            <div class="weather-description">
+
+                                {{ weather.description }}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="weather-icon">
+
+                            <i class="bi bi-cloud-sun"></i>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="weather-details">
+
+                        <div class="weather-detail">
+
+                            <span>Humidity</span>
+
+                            <strong>
+                                {{ weather.humidity }}%
+                            </strong>
+
+                        </div>
+
+
+                        <div class="weather-detail">
+
+                            <span>Location</span>
+
+                            <strong>
+                                {{ shop.city }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- AI INSIGHT -->
+
+            <div class="col-lg-7">
+
+                <div class="ai-card">
+
+                    <div class="ai-title">
+
+                        <div class="ai-icon">
+
+                            <i class="bi bi-stars"></i>
+
+                        </div>
+
+                        RetailPulse Intelligence
+
+                    </div>
+
+
+                    <p class="ai-text">
+
+                        RetailPulse combines historical sales and weather
+                        information to identify possible changes in product
+                        demand. Weather-sensitive products such as beverages,
+                        ice cream, umbrellas and raincoats can be monitored
+                        for demand opportunities and inventory risks.
+
+                    </p>
+
+
+                    <div class="row mt-3">
+
+                        <div class="col-md-4">
+
+                            <strong>Weather</strong>
+
+                            <div class="small text-muted">
+                                Temperature & humidity
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <strong>Sales</strong>
+
+                            <div class="small text-muted">
+                                Historical demand
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <strong>Prediction</strong>
+
+                            <div class="small text-muted">
+                                ML-based demand forecast
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <a href="#" class="ai-btn">
+
+                        <i class="bi bi-graph-up"></i>
+
+                        View Demand Insights
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             INVENTORY + RISK
+        ================================================= -->
+
+        <div class="row g-4">
+
+
+            <!-- INVENTORY -->
+
+            <div class="col-xl-8">
+
+                <div class="card-custom">
+
+                    <div class="card-header-custom">
+
+                        <div>
+
+                            <h2 class="card-title">
+                                Current Inventory
+                            </h2>
+
+                            <small class="text-muted">
+                                Current stock levels
+                            </small>
+
+                        </div>
+
+                        <a href="/manager/inventory"
+                           class="btn btn-sm btn-outline-success">
+
+                            View Inventory
+
+                        </a>
+
+                    </div>
+
+
+                    <div class="table-responsive">
+
+                        <table class="table-custom">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Product</th>
+
+                                    <th>Category</th>
+
+                                    <th>Stock</th>
+
+                                    <th>Status</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                {% for item in products[:8] %}
+
+                                <tr>
+
+                                    <td>
+                                        <strong>
+                                            {{ item.name }}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        {{ item.category }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.current_stock }}
+                                    </td>
+
+                                    <td>
+
+                                        {% if item.current_stock <= 5 %}
+
+                                            <span class="stock-badge stock-critical">
+                                                Critical
+                                            </span>
+
+                                        {% elif item.current_stock <= 10 %}
+
+                                            <span class="stock-badge stock-low">
+                                                Low Stock
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="stock-badge stock-good">
+                                                Healthy
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                </tr>
+
+                                {% else %}
+
+                                <tr>
+
+                                    <td colspan="4"
+                                        class="text-center text-muted">
+
+                                        No inventory data available.
+
+                                    </td>
+
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RISK ALERTS -->
+
+            <div class="col-xl-4">
+
+                <div class="card-custom">
+
+                    <div class="card-header-custom">
+
+                        <div>
+
+                            <h2 class="card-title">
+                                Inventory Alerts
+                            </h2>
+
+                            <small class="text-muted">
+                                Products requiring attention
+                            </small>
+
+                        </div>
+
+                        <i class="bi bi-bell text-success"></i>
+
+                    </div>
+
+
+                    {% for item in products %}
+
+                        {% if item.current_stock <= 10 %}
+
+                        <div class="risk-item">
+
+                            <div class="risk-product">
+
+                                <span class="risk-dot"></span>
+
+                                <div>
+
+                                    <div class="risk-name">
+                                        {{ item.name }}
+                                    </div>
+
+                                    <div class="risk-text">
+                                        Only {{ item.current_stock }}
+                                        units remaining
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <i class="bi bi-chevron-right text-muted"></i>
+
+                        </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+                    <div class="mt-3">
+
+                        <a href="/manager/inventory"
+                           class="btn btn-sm btn-outline-success w-100">
+
+                            Review Inventory Alerts
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             QUICK ACTIONS
+        ================================================= -->
+
+        <div class="row g-4 mt-1">
+
+
+            <div class="col-lg-4">
+
+                <div class="card-custom">
+
+                    <h2 class="card-title mb-3">
+                        Quick Actions
+                    </h2>
+
+
+                    <a href="/manager/products/add"
+                       class="quick-btn">
+
+                        <i class="bi bi-plus-circle"></i>
+
+                        Add Product
+
+                    </a>
+
+
+                    <a href="/manager/inventory"
+                       class="quick-btn">
+
+                        <i class="bi bi-box-seam"></i>
+
+                        Manage Inventory
+
+                    </a>
+
+
+                    <a href="/manager/sales"
+                       class="quick-btn">
+
+                        <i class="bi bi-cart-plus"></i>
+
+                        Record Sale
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-8">
+
+                <div class="card-custom">
+
+                    <div class="card-header-custom">
+
+                        <div>
+
+                            <h2 class="card-title">
+                                How RetailPulse Works
+                            </h2>
+
+                            <small class="text-muted">
+                                Weather-aware inventory intelligence
+                            </small>
+
+                        </div>
+
+                        <i class="bi bi-lightbulb text-success fs-4"></i>
+
+                    </div>
+
+
+                    <div class="row text-center">
+
+
+                        <div class="col-md-3">
+
+                            <div class="stat-icon green-icon mx-auto mb-2">
+
+                                <i class="bi bi-cart-check"></i>
+
+                            </div>
+
+                            <strong>Sales Data</strong>
+
+                            <p class="small text-muted">
+                                Historical product sales
+                            </p>
+
+                        </div>
+
+
+                        <div class="col-md-3">
+
+                            <div class="stat-icon blue-icon mx-auto mb-2">
+
+                                <i class="bi bi-cloud-sun"></i>
+
+                            </div>
+
+                            <strong>Weather</strong>
+
+                            <p class="small text-muted">
+                                Temperature and rainfall
+                            </p>
+
+                        </div>
+
+
+                        <div class="col-md-3">
+
+                            <div class="stat-icon orange-icon mx-auto mb-2">
+
+                                <i class="bi bi-cpu"></i>
+
+                            </div>
+
+                            <strong>ML Model</strong>
+
+                            <p class="small text-muted">
+                                Demand prediction
+                            </p>
+
+                        </div>
+
+
+                        <div class="col-md-3">
+
+                            <div class="stat-icon red-icon mx-auto mb-2">
+
+                                <i class="bi bi-shield-check"></i>
+
+                            </div>
+
+                            <strong>Risk & Reorder</strong>
+
+                            <p class="small text-muted">
+                                Inventory recommendations
+                            </p>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        RetailPulse — Weather-Aware Inventory Risk & Opportunity Engine
+        <br>
+
+        <span>
+            {{ shop.shop_name }} • {{ shop.city }}
+        </span>
+
+    </footer>
+
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+</body>
+</html>

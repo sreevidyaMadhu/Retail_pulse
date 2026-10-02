@@ -1,0 +1,61 @@
+{
+    "model": "RandomForestRegressor",
+    "training_period": {
+        "start": "2024-02-08",
+        "end": "2025-12-31"
+    },
+    "test_period": {
+        "start": "2026-01-01",
+        "end": "2026-02-07"
+    },
+    "features": [
+        "temperature",
+        "min_temperature",
+        "max_temperature",
+        "humidity",
+        "rainfall",
+        "wind_speed",
+        "pressure",
+        "day_of_week",
+        "month",
+        "day",
+        "is_weekend",
+        "previous_day_sales",
+        "rolling_7day_sales",
+        "product_id",
+        "category",
+        "weather_dependency"
+    ],
+    "numerical_features": [
+        "temperature",
+        "min_temperature",
+        "max_temperature",
+        "humidity",
+        "rainfall",
+        "wind_speed",
+        "pressure",
+        "day_of_week",
+        "month",
+        "day",
+        "is_weekend",
+        "previous_day_sales",
+        "rolling_7day_sales"
+    ],
+    "categorical_features": [
+        "product_id",
+        "category",
+        "weather_dependency"
+    ],
+    "best_parameters": {
+        "n_estimators": 150,
+        "max_depth": 15,
+        "min_samples_split": 2,
+        "min_samples_leaf": 1
+    },
+    "validation_mae": 5.964406582722484,
+    "test_mae": 5.698539285671122,
+    "test_rmse": 6.824253333428399,
+    "test_r2": 0.27520541339337545,
+    "total_training_records": 55440,
+    "total_test_records": 3040
+}

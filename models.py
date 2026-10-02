@@ -95,11 +95,6 @@ class Inventory(db.Model):
 
     quantity = db.Column(db.Integer, nullable=False, default=0)
 
-    reorder_level = db.Column(
-        db.Integer,
-        nullable=False,
-        default=10
-    )
 
     last_updated = db.Column(
         db.DateTime,
