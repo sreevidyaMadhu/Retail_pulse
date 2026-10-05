@@ -13,17 +13,14 @@
         "day",
         "is_weekend",
         "previous_day_sales",
+        "lag_7day_sales",
         "rolling_7day_sales",
+        "price",
         "product_id",
         "category",
         "weather_dependency"
     ],
-    "categorical_columns": [
-        "product_id",
-        "category",
-        "weather_dependency"
-    ],
-    "numerical_columns": [
+    "numerical_features": [
         "temperature",
         "min_temperature",
         "max_temperature",
@@ -36,24 +33,24 @@
         "day",
         "is_weekend",
         "previous_day_sales",
-        "rolling_7day_sales"
+        "lag_7day_sales",
+        "rolling_7day_sales",
+        "price"
     ],
-    "target": "demand",
+    "categorical_features": [
+        "product_id",
+        "category",
+        "weather_dependency"
+    ],
     "best_parameters": {
         "n_estimators": 150,
         "learning_rate": 0.05,
-        "max_depth": 4,
-        "min_samples_split": 3,
-        "min_samples_leaf": 2
+        "max_depth": 4
     },
-    "best_validation_mae": 5.788799311515052,
-    "final_test_period": {
-        "start": "2026-01-01",
-        "end": "2026-02-07"
-    },
-    "final_metrics": {
-        "MAE": 5.676370700588627,
-        "RMSE": 6.785120532412524,
-        "R2": 0.28349406220953577
+    "metrics": {
+        "MAE": 5.673224488024245,
+        "RMSE": 6.780173309163262,
+        "R2": 0.28453853077596214,
+        "MAPE": 29.815788623302613
     }
 }

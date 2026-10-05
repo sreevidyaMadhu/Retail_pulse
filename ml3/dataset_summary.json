@@ -1,0 +1,39 @@
+{
+    "total_records": 58480,
+    "date_range": {
+        "start": "2024-02-08",
+        "end": "2026-02-07"
+    },
+    "num_products": 80,
+    "demand_stats": {
+        "mean": 54.19422024623803,
+        "std": 33.115309844092785,
+        "min": 1,
+        "max": 283,
+        "total_variance": 1096.6237460702685
+    },
+    "columns": [
+        "date",
+        "shop_id",
+        "product_id",
+        "product_name",
+        "category",
+        "weather_dependency",
+        "temperature",
+        "min_temperature",
+        "max_temperature",
+        "humidity",
+        "rainfall",
+        "wind_speed",
+        "pressure",
+        "demand",
+        "day_of_week",
+        "month",
+        "day",
+        "is_weekend",
+        "previous_day_sales",
+        "lag_7day_sales",
+        "rolling_7day_sales",
+        "price"
+    ]
+}

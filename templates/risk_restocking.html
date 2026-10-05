@@ -1,0 +1,604 @@
+{% extends "base.html" %}
+
+{% block title %}
+Risk and Restocking Alerts - RetailPulse
+{% endblock %}
+
+{% block content %}
+
+<!-- =========================
+     PAGE HEADER
+========================= -->
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+
+    <div>
+
+        <h1 class="page-title">
+            Risk and Restocking Alerts
+        </h1>
+
+        <p class="page-subtitle">
+            Monitor stockout, expiry and replenishment risks using
+            predicted demand and current inventory.
+        </p>
+
+    </div>
+
+    <div>
+        <a href="{{ url_for('manager_dashboard') }}"
+           class="btn btn-outline-success">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Dashboard
+
+        </a>
+    </div>
+
+</div>
+
+
+<!-- =========================
+     KPI CARDS
+========================= -->
+
+<div class="row g-4 mb-4">
+
+    <!-- PRODUCTS ANALYSED -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-box-seam"></i>
+            </div>
+
+            <div class="stat-label">
+                Products Analysed
+            </div>
+
+            <div class="stat-value">
+                {{ products_analysed }}
+            </div>
+
+            <small class="text-muted">
+                Products evaluated for future risk
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- RESTOCK REQUIRED -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-arrow-repeat"></i>
+            </div>
+
+            <div class="stat-label">
+                Restock Required
+            </div>
+
+            <div class="stat-value text-danger">
+                {{ restock_required }}
+            </div>
+
+            <small class="text-muted">
+                Products with projected shortage
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- STOCKOUT RISK -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+
+            <div class="stat-label">
+                Stockout Risk
+            </div>
+
+            <div class="stat-value text-warning">
+                {{ stockout_risk }}
+            </div>
+
+            <small class="text-muted">
+                Products expected to run out
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- EXPIRY RISK -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                <i class="bi bi-clock-history"></i>
+            </div>
+
+            <div class="stat-label">
+                Expiry Risk
+            </div>
+
+            <div class="stat-value text-danger">
+                {{ expiry_risk }}
+            </div>
+
+            <small class="text-muted">
+                Products with expiring stock
+            </small>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     RISK OVERVIEW
+========================= -->
+
+<div class="dashboard-card mb-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h5 class="mb-1">
+                Inventory Risk Overview
+            </h5>
+
+            <p class="text-muted small mb-0">
+                Five-day demand forecast compared with available inventory.
+            </p>
+
+        </div>
+
+        <i class="bi bi-shield-exclamation fs-3"></i>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table inventory-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Product</th>
+
+                    <th>5-Day Demand</th>
+
+                    <th>Usable Stock</th>
+
+                    <th>Projected Stock</th>
+
+                    <th>Stockout</th>
+
+                    <th>Restock</th>
+
+                    <th>Risk</th>
+
+                    <th>Recommendation</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for item in risk_data %}
+
+                <tr>
+
+                    <!-- PRODUCT -->
+
+                    <td>
+
+                        <div class="fw-semibold">
+                            {{ item.product.name }}
+                        </div>
+
+                        <small class="text-muted">
+                            {{ item.product.category }}
+                        </small>
+
+                    </td>
+
+
+                    <!-- FIVE DAY DEMAND -->
+
+                    <td>
+
+                        <strong>
+                            {{ item.risk.five_day_demand }}
+                        </strong>
+
+                        <small class="text-muted d-block">
+                            units
+                        </small>
+
+                    </td>
+
+
+                    <!-- USABLE STOCK -->
+
+                    <td>
+
+                        <strong>
+                            {{ item.risk.usable_stock }}
+                        </strong>
+
+                        <small class="text-muted d-block">
+                            units
+                        </small>
+
+                    </td>
+
+
+                    <!-- PROJECTED STOCK -->
+
+                    <td>
+
+                        {% if item.risk.projected_stock > 0 %}
+
+                            <span class="text-success fw-semibold">
+                                {{ item.risk.projected_stock }}
+                            </span>
+
+                        {% else %}
+
+                            <span class="text-danger fw-semibold">
+                                0
+                            </span>
+
+                        {% endif %}
+
+                        <small class="text-muted d-block">
+                            after forecast
+                        </small>
+
+                    </td>
+
+
+                    <!-- STOCKOUT -->
+
+                    <td>
+
+                        {% if item.risk.stockout_date %}
+
+                            <span class="status-badge status-danger">
+
+                                <i class="bi bi-exclamation-circle"></i>
+
+                                {{ item.risk.stockout_date }}
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge status-success">
+
+                                <i class="bi bi-check-circle"></i>
+
+                                No stockout
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- RESTOCK -->
+
+                    <td>
+
+                        {% if item.risk.shortage > 0 %}
+
+                            <strong class="text-danger">
+                                {{ item.risk.shortage }}
+                            </strong>
+
+                            <small class="text-muted d-block">
+                                units
+                            </small>
+
+                        {% else %}
+
+                            <span class="text-success">
+                                0
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- RISK -->
+
+                    <td>
+
+                        {% if "Stockout" in item.risk.risk
+                              or "Out of Stock" in item.risk.risk %}
+
+                            <span class="status-badge status-danger">
+
+                                <i class="bi bi-exclamation-triangle"></i>
+
+                                {{ item.risk.risk }}
+
+                            </span>
+
+                        {% elif "Expiry" in item.risk.risk %}
+
+                            <span class="status-badge status-warning">
+
+                                <i class="bi bi-clock"></i>
+
+                                {{ item.risk.risk }}
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge status-success">
+
+                                <i class="bi bi-check-circle"></i>
+
+                                {{ item.risk.risk }}
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- RECOMMENDATION -->
+
+                    <td>
+
+                        <span class="text-muted">
+
+                            {{ item.risk.recommendation }}
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     EXPIRY RISK
+========================= -->
+
+<div class="dashboard-card mb-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h5 class="mb-1">
+                Expiry Risk
+            </h5>
+
+            <p class="text-muted small mb-0">
+                Products with stock approaching expiry within the forecast period.
+            </p>
+
+        </div>
+
+        <i class="bi bi-calendar-x fs-3"></i>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table inventory-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Product</th>
+
+                    <th>Expiring Stock</th>
+
+                    <th>Expiry Date</th>
+
+                    <th>Expected 5-Day Demand</th>
+
+                    <th>Recommended Action</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% set expiry_found = false %}
+
+            {% for item in risk_data %}
+
+                {% if item.risk.expiring_stock > 0 %}
+
+                    {% set expiry_found = true %}
+
+                    <tr>
+
+                        <td>
+
+                            <div class="fw-semibold">
+                                {{ item.product.name }}
+                            </div>
+
+                            <small class="text-muted">
+                                {{ item.product.category }}
+                            </small>
+
+                        </td>
+
+
+                        <td>
+
+                            <strong class="text-danger">
+                                {{ item.risk.expiring_stock }}
+                            </strong>
+
+                            <small class="text-muted d-block">
+                                units
+                            </small>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="status-badge status-warning">
+
+                                <i class="bi bi-calendar-event"></i>
+
+                                {{ item.risk.expiry_date }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            {{ item.risk.five_day_demand }}
+
+                            <small class="text-muted">
+                                units
+                            </small>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="status-badge status-warning">
+
+                                <i class="bi bi-arrow-right-circle"></i>
+
+                                Prioritize selling
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                {% endif %}
+
+            {% endfor %}
+
+
+            {% if expiry_risk == 0 %}
+
+                <tr>
+
+                    <td colspan="5" class="text-center py-4">
+
+                        <i class="bi bi-check-circle fs-3 text-success"></i>
+
+                        <div class="mt-2 fw-semibold">
+                            No expiry risks detected
+                        </div>
+
+                        <small class="text-muted">
+                            No inventory batches are approaching expiry
+                            within the forecast period.
+                        </small>
+
+                    </td>
+
+                </tr>
+
+            {% endif %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     HOW RETAILPULSE DECIDES
+========================= -->
+
+<div class="dashboard-card">
+
+    <div class="d-flex gap-3">
+
+        <div class="stat-icon">
+
+            <i class="bi bi-lightbulb"></i>
+
+        </div>
+
+
+        <div>
+
+            <h5 class="mb-2">
+                How RetailPulse Generates Alerts
+            </h5>
+
+            <p class="text-muted mb-0">
+
+                RetailPulse combines predicted product demand with
+                current usable inventory and batch expiry information.
+                The system identifies potential stockouts, shortages
+                and expiry risks, then provides a replenishment or
+                inventory action recommendation.
+
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

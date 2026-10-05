@@ -13,17 +13,17 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 MODEL_PATH = os.path.join(
     BASE_DIR,
-    "random_forest_model_2year.pkl"
+    "gradient_boosting_model_2year.pkl"
 )
 
 ENCODER_PATH = os.path.join(
     BASE_DIR,
-    "encoder_2year.pkl"
+    "gradient_boosting_encoder_2year.pkl"
 )
 
 METADATA_PATH = os.path.join(
     BASE_DIR,
-    "model_features_2year.json"
+    "gradient_boosting_features_2year.json"
 )
 
 
@@ -31,7 +31,7 @@ METADATA_PATH = os.path.join(
 # Load trained model, encoder and metadata
 # ============================================================
 
-print("Loading RetailPulse demand prediction model...")
+print("Loading RetailPulse demand prediction model (Gradient Boosting)...")
 
 model = joblib.load(MODEL_PATH)
 encoder = joblib.load(ENCODER_PATH)
@@ -39,7 +39,7 @@ encoder = joblib.load(ENCODER_PATH)
 with open(METADATA_PATH, "r") as file:
     metadata = json.load(file)
 
-print("Model loaded successfully.")
+print("Gradient Boosting model loaded successfully.")
 
 
 # ============================================================
@@ -80,8 +80,16 @@ def predict_demand(
     humidity,
     rainfall,
     wind_speed,
-    pressure
+    pressure,
+    price=0.0,
+    lag_7day_sales=None
 ):
+
+    # --------------------------------------------------------
+    # Handle optional / backward-compatible features
+    # --------------------------------------------------------
+    if lag_7day_sales is None:
+        lag_7day_sales = rolling_7day_sales
 
     # --------------------------------------------------------
     # Convert date
@@ -108,7 +116,9 @@ def predict_demand(
         "day": day,
         "is_weekend": is_weekend,
         "previous_day_sales": previous_day_sales,
+        "lag_7day_sales": lag_7day_sales,
         "rolling_7day_sales": rolling_7day_sales,
+        "price": float(price),
 
         "temperature": temperature,
         "min_temperature": min_temperature,

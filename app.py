@@ -21,7 +21,10 @@ from models import (
     InventoryBatch
 )
 
-from weather_service import fetch_weather_by_city
+from weather_service import (
+    fetch_weather_by_city,
+    fetch_weather_forecast
+)
 from ml2.predict_demand import predict_demand
 load_dotenv()
 
@@ -35,9 +38,9 @@ db.init_app(app)
 with app.app_context():
     try:
         db.session.execute(db.text("SELECT 1"))
-        print("✅ PostgreSQL connection successful!")
+        print("[OK] PostgreSQL connection successful!")
     except Exception as e:
-        print("❌ PostgreSQL connection failed!")
+        print("[ERROR] PostgreSQL connection failed!")
         print(e)
 
 # Flask-Login Setup
@@ -88,9 +91,23 @@ def get_sales_features(product_id, prediction_date):
 
     rolling_7day_sales = seven_day_sales / 7
 
+    # 7-day seasonal lag sales (same day last week)
+    seven_days_ago = prediction_date - timedelta(days=7)
+
+    lag_7day_sales = db.session.query(
+        db.func.coalesce(
+            db.func.sum(Sale.quantity),
+            0
+        )
+    ).filter(
+        Sale.product_id == product_id,
+        db.func.date(Sale.sale_date) == seven_days_ago
+    ).scalar()
+
     return {
         "previous_day_sales": float(previous_day_sales),
-        "rolling_7day_sales": float(rolling_7day_sales)
+        "rolling_7day_sales": float(rolling_7day_sales),
+        "lag_7day_sales": float(lag_7day_sales)
     }
 
 
@@ -135,11 +152,233 @@ def get_product_demand_prediction(product, prediction_date, weather):
 
         wind_speed=weather["wind_speed"],
 
-        pressure=weather["pressure"]
+        pressure=weather["pressure"],
+
+        price=getattr(product, "price", 0.0),
+
+        lag_7day_sales=sales_features["lag_7day_sales"]
     )
 
     return predicted_demand
 
+def get_future_demand_predictions(product, forecast):
+    """
+    Generate demand predictions for the next 5 forecast days.
+
+    This version handles gaps in sales history without treating
+    missing transaction records as zero demand.
+
+    Recent actual sales are used as the starting point.
+    Future predictions are then generated recursively.
+    """
+
+    if not forecast:
+        return []
+
+    # ---------------------------------------------------------
+    # 1. Get all historical sales for this product
+    # ---------------------------------------------------------
+
+    sales_rows = db.session.query(
+        db.func.date(Sale.sale_date),
+        db.func.sum(Sale.quantity)
+    ).filter(
+        Sale.product_id == product.id
+    ).group_by(
+        db.func.date(Sale.sale_date)
+    ).order_by(
+        db.func.date(Sale.sale_date)
+    ).all()
+
+    # Store actual daily sales
+    sales_history = {}
+
+    for sale_date, quantity in sales_rows:
+
+        if isinstance(sale_date, str):
+            sale_date = datetime.strptime(
+                sale_date,
+                "%Y-%m-%d"
+            ).date()
+
+        sales_history[sale_date] = float(quantity)
+
+    # ---------------------------------------------------------
+    # 2. Generate predictions day by day
+    # ---------------------------------------------------------
+
+    predictions = []
+
+    for day in forecast:
+
+        prediction_date = datetime.strptime(
+            day["date"],
+            "%Y-%m-%d"
+        ).date()
+
+        # -----------------------------------------------------
+        # Find actual/known sales before prediction date
+        # -----------------------------------------------------
+
+        previous_dates = sorted(
+            [
+                date
+                for date in sales_history
+                if date < prediction_date
+            ]
+        )
+
+        # -----------------------------------------------------
+        # Previous-day sales
+        #
+        # If yesterday has a recorded value, use it.
+        # If yesterday is missing, use the latest known
+        # sales observation instead of assuming zero.
+        # -----------------------------------------------------
+
+        yesterday = prediction_date - timedelta(days=1)
+
+        if yesterday in sales_history:
+
+            previous_day_sales = sales_history[
+                yesterday
+            ]
+
+        elif previous_dates:
+
+            latest_known_date = previous_dates[-1]
+
+            previous_day_sales = sales_history[
+                latest_known_date
+            ]
+
+        else:
+
+            previous_day_sales = 0.0
+
+        # -----------------------------------------------------
+        # Rolling 7-observation average
+        #
+        # Use the latest 7 available sales observations.
+        # Missing calendar dates are NOT treated as zero.
+        # -----------------------------------------------------
+
+        recent_dates = previous_dates[-7:]
+
+        recent_sales = [
+            sales_history[date]
+            for date in recent_dates
+        ]
+
+        if recent_sales:
+
+            rolling_7day_sales = (
+                sum(recent_sales)
+                / len(recent_sales)
+            )
+
+        else:
+
+            rolling_7day_sales = 0.0
+
+        # -----------------------------------------------------
+        # 3. Predict demand using the Random Forest model
+        # -----------------------------------------------------
+
+        predicted_demand = predict_demand(
+
+            product_id=f"P{product.id:03d}",
+
+            category=product.category,
+
+            weather_dependency=
+                product.weather_dependency,
+
+            date=prediction_date,
+
+            previous_day_sales=
+                previous_day_sales,
+
+            rolling_7day_sales=
+                rolling_7day_sales,
+
+            temperature=
+                day["temp"],
+
+            min_temperature=
+                day["min_temperature"],
+
+            max_temperature=
+                day["max_temperature"],
+
+            humidity=
+                day["humidity"],
+
+            rainfall=
+                day["rainfall"],
+
+            wind_speed=
+                day["wind_speed"],
+
+            pressure=
+                day["pressure"],
+
+            price=
+                getattr(product, "price", 0.0),
+
+            lag_7day_sales=
+                rolling_7day_sales
+        )
+
+        # -----------------------------------------------------
+        # 4. Store prediction
+        # -----------------------------------------------------
+
+        predictions.append({
+
+            "date":
+                prediction_date,
+
+            "predicted_demand":
+                predicted_demand,
+
+            "temperature":
+                day["temp"],
+
+            "rainfall":
+                day["rainfall"],
+
+            "humidity":
+                day["humidity"],
+
+            "condition":
+                day["condition"],
+
+            "previous_day_sales":
+                round(
+                    previous_day_sales,
+                    2
+                ),
+
+            "rolling_7day_sales":
+                round(
+                    rolling_7day_sales,
+                    2
+                )
+        })
+
+        # -----------------------------------------------------
+        # 5. Add prediction to sales history
+        #
+        # This allows the next forecast day to use the
+        # previous prediction recursively.
+        # -----------------------------------------------------
+
+        sales_history[prediction_date] = (
+            predicted_demand
+        )
+
+    return predictions
 def analyze_inventory_risk(product, predicted_demand):
     """
     Compare predicted demand with usable inventory
@@ -207,6 +446,185 @@ def analyze_inventory_risk(product, predicted_demand):
         "usable_stock": usable_stock,
         "expired_stock": expired_stock,
         "shortage": round(shortage, 2),
+        "risk": risk,
+        "recommendation": recommendation
+    }
+def analyze_future_inventory_risk(product, predictions):
+    """
+    Analyze stockout and expiry risk using the predicted demand
+    for the next 5 days.
+    """
+
+    inventory = Inventory.query.filter_by(
+        product_id=product.id
+    ).first()
+
+    # ---------------------------------------------------------
+    # 1. No inventory record
+    # ---------------------------------------------------------
+
+    if not inventory:
+        total_demand = sum(
+            prediction["predicted_demand"]
+            for prediction in predictions
+        )
+
+        return {
+            "current_stock": 0,
+            "usable_stock": 0,
+            "expired_stock": 0,
+            "expiring_stock": 0,
+            "five_day_demand": round(total_demand, 2),
+            "projected_stock": 0,
+            "shortage": round(total_demand, 2),
+            "stockout_date": predictions[0]["date"]
+                if predictions else None,
+            "expiry_date": None,
+            "risk": "Out of Stock",
+            "recommendation": "Replenishment Required"
+        }
+
+    # ---------------------------------------------------------
+    # 2. Check inventory batches
+    # ---------------------------------------------------------
+
+    today = datetime.utcnow().date()
+
+    usable_stock = 0
+    expired_stock = 0
+    expiring_stock = 0
+    earliest_expiry_date = None
+
+    batches = InventoryBatch.query.filter_by(
+        inventory_id=inventory.id
+    ).all()
+
+    for batch in batches:
+
+        if batch.quantity <= 0:
+            continue
+
+        # Already expired
+        if batch.expiry_date < today:
+
+            expired_stock += batch.quantity
+
+        else:
+
+            usable_stock += batch.quantity
+
+            # Expiring within the 5-day planning horizon
+            if batch.expiry_date <= today + timedelta(days=5):
+
+                expiring_stock += batch.quantity
+
+                if (
+                    earliest_expiry_date is None
+                    or batch.expiry_date < earliest_expiry_date
+                ):
+                    earliest_expiry_date = batch.expiry_date
+
+    # ---------------------------------------------------------
+    # 3. Calculate total predicted demand
+    # ---------------------------------------------------------
+
+    five_day_demand = sum(
+        prediction["predicted_demand"]
+        for prediction in predictions
+    )
+
+    # ---------------------------------------------------------
+    # 4. Calculate stockout date
+    # ---------------------------------------------------------
+
+    projected_stock = usable_stock
+    stockout_date = None
+
+    for prediction in predictions:
+
+        daily_demand = prediction["predicted_demand"]
+
+        projected_stock -= daily_demand
+
+        if projected_stock <= 0:
+
+            stockout_date = prediction["date"]
+            break
+
+    # ---------------------------------------------------------
+    # 5. Calculate shortage
+    # ---------------------------------------------------------
+
+    shortage = max(
+        0,
+        five_day_demand - usable_stock
+    )
+
+    # ---------------------------------------------------------
+    # 6. Determine risk
+    # ---------------------------------------------------------
+
+    if usable_stock == 0:
+
+        risk = "Out of Stock"
+        recommendation = "Replenishment Required"
+
+    elif expiring_stock > 0 and stockout_date:
+
+        risk = "Stockout & Expiry Risk"
+
+        recommendation = (
+            f"Restock approximately {round(shortage)} units "
+            f"and prioritize expiring stock"
+        )
+
+    elif expiring_stock > 0:
+
+        risk = "Expiry Risk"
+
+        recommendation = (
+            "Prioritize selling expiring stock"
+        )
+
+    elif stockout_date:
+
+        risk = "Stockout Risk"
+
+        recommendation = (
+            f"Restock approximately {round(shortage)} units"
+        )
+
+    else:
+
+        risk = "Stock Sufficient"
+
+        recommendation = (
+            "No Immediate Replenishment Required"
+        )
+
+    # ---------------------------------------------------------
+    # 7. Return complete risk analysis
+    # ---------------------------------------------------------
+
+    return {
+        "current_stock": inventory.quantity,
+        "usable_stock": usable_stock,
+        "expired_stock": expired_stock,
+        "expiring_stock": expiring_stock,
+        "five_day_demand": round(
+            five_day_demand,
+            2
+        ),
+        "projected_stock": round(
+            max(projected_stock, 0),
+            2
+        ),
+        "shortage": round(
+            shortage,
+            2
+        ),
+        "stockout_date": stockout_date,
+        "expiry_date": earliest_expiry_date,
         "risk": risk,
         "recommendation": recommendation
     }
@@ -340,19 +758,19 @@ def manager_dashboard():
     # Live weather
     # --------------------------------------------------
 
-    weather = fetch_weather_by_city(
-        shop.city
-    )
+    weather = fetch_weather_by_city(shop.city)
 
-   # --------------------------------------------------
-# Products
-# --------------------------------------------------
+
+    # --------------------------------------------------
+    # Products
+    # --------------------------------------------------
 
     products = Product.query.filter_by(
         shop_id=current_user.shop_id
     ).all()
 
     for product in products:
+
         product.current_stock = (
             product.inventory.quantity
             if product.inventory
@@ -361,10 +779,94 @@ def manager_dashboard():
 
 
     # --------------------------------------------------
-    # AI demand + inventory analysis
+    # SALES TREND - LAST 7 DAYS
     # --------------------------------------------------
 
-    prediction_date = datetime.utcnow().date()
+    today = datetime.utcnow().date()
+
+    sales_chart_data = []
+
+    for i in range(6, -1, -1):
+
+        chart_date = today - timedelta(days=i)
+
+        daily_sales = db.session.query(
+            db.func.coalesce(
+                db.func.sum(Sale.quantity),
+                0
+            )
+        ).filter(
+            Sale.sale_date >= chart_date,
+            Sale.sale_date < chart_date + timedelta(days=1),
+            Sale.product_id.in_(
+                db.session.query(Product.id).filter_by(
+                    shop_id=current_user.shop_id
+                )
+            )
+        ).scalar()
+
+        sales_chart_data.append({
+            "date": chart_date.strftime("%d %b"),
+            "sales": int(daily_sales)
+        })
+
+
+    # --------------------------------------------------
+    # INVENTORY BY CATEGORY
+    # --------------------------------------------------
+
+    inventory_category_data = []
+
+    categories = sorted(
+        set(
+            product.category
+            for product in products
+        )
+    )
+
+    for category in categories:
+
+        category_stock = sum(
+            product.current_stock
+            for product in products
+            if product.category == category
+        )
+
+        inventory_category_data.append({
+            "category": category,
+            "stock": category_stock
+        })
+
+
+    # --------------------------------------------------
+    # BASIC RISK SUMMARY
+    # --------------------------------------------------
+
+    low_stock_count = sum(
+        1
+        for product in products
+        if product.current_stock <= 10
+    )
+
+    out_of_stock_count = sum(
+        1
+        for product in products
+        if product.current_stock == 0
+    )
+
+
+    # --------------------------------------------------
+    # AI ANALYSIS
+    # --------------------------------------------------
+    #
+    # Keep this temporarily because the existing
+    # Demand Prediction page still uses it.
+    #
+    # The dashboard itself will NOT display the
+    # individual AI predictions.
+    # --------------------------------------------------
+
+    prediction_date = today
 
     ai_products = []
 
@@ -390,24 +892,18 @@ def manager_dashboard():
                 ai_products.append({
                     "product": product,
                     "predicted_demand": predicted_demand,
-                    "current_stock": risk[
-                        "current_stock"
-                    ],
-                    "usable_stock": risk[
-                        "usable_stock"
-                    ],
-                    "expired_stock": risk[
-                        "expired_stock"
-                    ],
-                    "shortage": risk[
-                        "shortage"
-                    ],
-                    "risk": risk[
-                        "risk"
-                    ],
-                    "recommendation": risk[
-                        "recommendation"
-                    ]
+                    "current_stock":
+                        risk["current_stock"],
+                    "usable_stock":
+                        risk["usable_stock"],
+                    "expired_stock":
+                        risk["expired_stock"],
+                    "shortage":
+                        risk["shortage"],
+                    "risk":
+                        risk["risk"],
+                    "recommendation":
+                        risk["recommendation"]
                 })
 
             except Exception as e:
@@ -416,17 +912,38 @@ def manager_dashboard():
                     f"Prediction failed for "
                     f"{product.name}: {e}"
                 )
+
+
     ai_products.sort(
-    key=lambda item: item["shortage"],
-    reverse=True
-)
+        key=lambda item: item["shortage"],
+        reverse=True
+    )
+
+
+    # --------------------------------------------------
+    # DASHBOARD
+    # --------------------------------------------------
 
     return render_template(
         "manager_dashboard.html",
+
         shop=shop,
+
         weather=weather,
+
         products=products,
-        ai_products=ai_products
+
+        ai_products=ai_products,
+
+        sales_chart_data=sales_chart_data,
+
+        inventory_category_data=
+            inventory_category_data,
+
+        low_stock_count=low_stock_count,
+
+        out_of_stock_count=
+            out_of_stock_count
     )
 @app.route("/employee/dashboard")
 @login_required
@@ -563,6 +1080,69 @@ def demand_prediction():
         shop=shop,
         weather=weather,
         demand_predictions=demand_predictions
+    )
+@app.route("/manager/risk-restocking")
+@login_required
+def risk_restocking():
+
+    if current_user.role != "manager":
+        return "Access Denied", 403
+
+    products = Product.query.filter_by(
+        shop_id=current_user.shop_id
+    ).all()
+
+    forecast = fetch_weather_forecast(
+        current_user.shop.city
+    )
+
+    risk_data = []
+
+    for product in products:
+
+        predictions = get_future_demand_predictions(
+            product,
+            forecast
+        )
+
+        risk = analyze_future_inventory_risk(
+            product,
+            predictions
+        )
+
+        risk_data.append({
+            "product": product,
+            "predictions": predictions,
+            "risk": risk
+        })
+
+    products_analysed = len(risk_data)
+
+    restock_required = sum(
+        1
+        for item in risk_data
+        if item["risk"]["shortage"] > 0
+    )
+
+    stockout_risk = sum(
+        1
+        for item in risk_data
+        if item["risk"]["stockout_date"] is not None
+    )
+
+    expiry_risk = sum(
+        1
+        for item in risk_data
+        if item["risk"]["expiring_stock"] > 0
+    )
+
+    return render_template(
+        "risk_restocking.html",
+        risk_data=risk_data,
+        products_analysed=products_analysed,
+        restock_required=restock_required,
+        stockout_risk=stockout_risk,
+        expiry_risk=expiry_risk
     )
 @app.route("/manager/products")
 @login_required
